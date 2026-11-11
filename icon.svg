@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="35%" stop-color="#f59e0b" />
+      <stop offset="70%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+    <linearGradient id="coralGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb7185" />
+      <stop offset="50%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#e11d48" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle with glow border -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+  <rect x="12" y="12" width="488" height="488" rx="116" fill="none" stroke="url(#coralGrad)" stroke-width="4" opacity="0.4" />
+
+  <!-- Circular Lion Crest Ring -->
+  <circle cx="256" cy="256" r="190" fill="none" stroke="url(#goldGrad)" stroke-width="6" opacity="0.8" />
+  <circle cx="256" cy="256" r="176" fill="#0f172a" stroke="url(#goldGrad)" stroke-width="2" opacity="0.9" />
+
+  <!-- Lion Silhouette / Majestic Head Geometry -->
+  <g transform="translate(136, 120) scale(0.95)" fill="url(#goldGrad)">
+    <!-- Main Mane Crown -->
+    <path d="M125 10 C140 2, 170 2, 185 10 C210 25, 230 60, 235 90 C240 120, 225 155, 205 175 C195 185, 175 195, 155 195 C135 195, 115 185, 105 175 C85 155, 70 120, 75 90 C80 60, 100 25, 125 10 Z" opacity="0.3"/>
+    
+    <!-- Lion Face Contours -->
+    <path d="M126 40 L155 75 L184 40 L200 65 L180 110 L210 130 L170 170 L155 160 L140 170 L100 130 L130 110 L110 65 Z" />
+    
+    <!-- Eyes -->
+    <polygon points="135,100 148,105 138,110" fill="#0b0f19" />
+    <polygon points="175,100 162,105 172,110" fill="#0b0f19" />
+    
+    <!-- Muzzle & Nose -->
+    <polygon points="155,122 147,135 163,135" fill="#f43f5e" />
+    <path d="M155 135 L155 146 M145 150 C150 154, 160 154, 165 150" stroke="#0b0f19" stroke-width="3" stroke-linecap="round" fill="none" />
+    
+    <!-- Majestic Cheeks & Whiskers -->
+    <line x1="120" y1="135" x2="85" y2="130" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round"/>
+    <line x1="120" y1="145" x2="80" y2="148" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round"/>
+    <line x1="190" y1="135" x2="225" y2="130" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round"/>
+    <line x1="190" y1="145" x2="230" y2="148" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- High Performance Lightning / Breakthrough Spear in Center Bottom -->
+  <path d="M256 310 L266 350 L285 350 L248 405 L254 365 L236 365 Z" fill="url(#coralGrad)" filter="url(#glow)" />
+
+  <!-- Outer Ring Brand Slogan Accent -->
+  <text x="256" y="90" text-anchor="middle" fill="#fef08a" font-family="'Plus Jakarta Sans', sans-serif" font-size="22" font-weight="800" letter-spacing="4">KILL BUSYNESS</text>
+  <text x="256" y="445" text-anchor="middle" fill="#fb7185" font-family="'DM Sans', sans-serif" font-size="16" font-weight="700" letter-spacing="3">END BUSY · BUILD HIGH PERFORMANCE</text>
+</svg>
