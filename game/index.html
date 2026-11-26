@@ -80,9 +80,11 @@ h2 { font-size: 1.7rem; margin-bottom: 10px; }
 .cxo-card:nth-child(2) { animation-delay: 0.24s; }
 .cxo-card:nth-child(3) { animation-delay: 0.40s; }
 .cxo-av {
-  width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  font-size: 1.35rem; flex-shrink: 0; color: #fff; font-weight: 700; box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 1.35rem; flex-shrink: 0; color: #fff; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.16);
+  overflow: hidden; border: 2.5px solid var(--sapphire);
 }
+.cxo-av img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; display: block; }
 .cxo-info { flex: 1; }
 .cxo-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 4px; }
 .cxo-head strong { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--navy); }
@@ -117,7 +119,8 @@ h2 { font-size: 1.7rem; margin-bottom: 10px; }
 
 /* Monk Card */
 .monk-card { background: var(--gold-bg); border: 1.5px solid #f59e0b; border-radius: 14px; padding: 18px 22px; margin-bottom: 18px; display: flex; gap: 16px; align-items: flex-start; }
-.monk-avatar { width: 50px; height: 50px; border-radius: 50%; background: #0b2545; color: #fde68a; display: flex; align-items: center; justify-content: center; font-size: 1.55rem; flex-shrink: 0; border: 2px solid #d97706; }
+.monk-avatar { width: 64px; height: 64px; border-radius: 50%; background: #0b2545; color: #fde68a; display: flex; align-items: center; justify-content: center; font-size: 1.55rem; flex-shrink: 0; border: 2.5px solid #d97706; overflow: hidden; box-shadow: 0 4px 12px rgba(217,119,6,0.28); }
+.monk-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; display: block; }
 .monk-body { flex: 1; }
 .monk-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 8px; }
 .monk-head span { font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.09em; color: #b45309; }
@@ -354,22 +357,22 @@ function speakMonk(text) {
 }
 if ("speechSynthesis" in window) window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 const CXO_CAST = {
-  "CFO":              { icon: "💰", col: "#0b2545", pitch: 0.88, rate: 0.96 },
-  "Production Head":  { icon: "🏭", col: "#b45309", pitch: 0.84, rate: 0.95 },
-  "Sales Head":       { icon: "📈", col: "#1d4ed8", pitch: 1.05, rate: 1.02 },
-  "Marketing Head":   { icon: "📣", col: "#7c3aed", pitch: 1.10, rate: 1.00 },
-  "Quality Head":     { icon: "✅", col: "#059669", pitch: 0.96, rate: 0.94 },
-  "R&D Head":         { icon: "🔬", col: "#0f766e", pitch: 0.92, rate: 0.95 },
-  "HR Head":          { icon: "👥", col: "#be123c", pitch: 1.12, rate: 0.98 },
-  "Supply Chain Head":{ icon: "🚚", col: "#475569", pitch: 0.86, rate: 0.96 },
-  "Board Chair":      { icon: "🏛️", col: "#92400e", pitch: 0.82, rate: 0.90 }
+  "CFO":              { icon: "💰", img: "assets/cxo_cfo.jpg",        col: "#0b2545", pitch: 0.88, rate: 0.96 },
+  "Production Head":  { icon: "🏭", img: "assets/cxo_production.jpg", col: "#b45309", pitch: 0.84, rate: 0.95 },
+  "Sales Head":       { icon: "📈", img: "assets/cxo_sales.jpg",      col: "#1d4ed8", pitch: 1.05, rate: 1.02 },
+  "Marketing Head":   { icon: "📣", img: "assets/cxo_marketing.jpg",  col: "#7c3aed", pitch: 1.10, rate: 1.00 },
+  "Quality Head":     { icon: "✅", img: "assets/cxo_quality.jpg",    col: "#059669", pitch: 0.96, rate: 0.94 },
+  "R&D Head":         { icon: "🔬", img: "assets/cxo_rd.jpg",         col: "#0f766e", pitch: 0.92, rate: 0.95 },
+  "HR Head":          { icon: "👥", img: "assets/cxo_hr.jpg",         col: "#be123c", pitch: 1.12, rate: 0.98 },
+  "Supply Chain Head":{ icon: "🚚", img: "assets/cxo_supply.jpg",     col: "#475569", pitch: 0.86, rate: 0.96 },
+  "Board Chair":      { icon: "🏛️", img: "assets/cxo_board.jpg",      col: "#92400e", pitch: 0.82, rate: 0.90 }
 };
 
 function getCXO(role) {
   for (const k of Object.keys(CXO_CAST)) {
     if (role.toLowerCase().includes(k.toLowerCase().split(" ")[0])) return { name: role, ...CXO_CAST[k] };
   }
-  return { name: role, icon: "💼", col: "#1d4ed8", pitch: 1.0, rate: 0.98 };
+  return { name: role, icon: "💼", img: "assets/cxo_cfo.jpg", col: "#1d4ed8", pitch: 1.0, rate: 0.98 };
 }
 
 function speakCXO(role, text) {
@@ -977,7 +980,7 @@ function render() {
       <span class="kicker">Week ${s.wk} Outcome &amp; Cause-and-Effect Logic</span>
       <h2>What Your Week ${s.wk} Decisions Produced</h2>
       <div class="monk-card">
-        <div class="monk-avatar">🧘</div>
+        <div class="monk-avatar"><img src="assets/cxo_monk.jpg" alt="The Monk"></div>
         <div class="monk-body">
           <div class="monk-head"><span>The Monk's Reflection</span><button class="monk-play" onclick="speakMonk(lastMonkText)">🔊 Replay Monk's Voice</button></div>
           <div class="monk-quote">${r.monk.split("\n").map(l => `<p style="margin-bottom:6px">“${l}”</p>`).join("")}</div>
@@ -1105,7 +1108,7 @@ function render() {
           const safeTxt = w.txt.replace(/'/g, "\'");
           const safeWho = w.who.replace(/'/g, "\'");
           return `<div class="cxo-card" style="border-top-color:${c.col}">
-            <div class="cxo-av" style="background:${c.col}">${c.icon}</div>
+            <div class="cxo-av" style="border-color:${c.col};background:${c.col}"><img src="${c.img}" alt="${w.who}"></div>
             <div class="cxo-info">
               <div class="cxo-head"><strong>${w.who}</strong><button class="cxo-spk" onclick="speakCXO('${safeWho}','${safeTxt}')">🔊 Listen</button></div>
               <div class="cxo-txt">${w.txt}</div>
