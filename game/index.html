@@ -896,7 +896,7 @@ function buildChartsHTML() {
 }
 
 function showTrophyModal() {
-  const pct = Math.min(100, Math.max(0, Math.round((s.profit / 227) * 100)));
+  const pct = Math.min(100, Math.max(0, Math.round((s.profit / 224) * 100)));
   const tier = s.profit >= 191 ? "Gold" : s.profit >= 121 ? "Silver" : "Bronze";
   const fill = tier === "Gold" ? "#f59e0b" : tier === "Silver" ? "#94a3b8" : "#b45309";
   const nameStr = s.ceoName ? `, ${s.ceoName}` : "";
@@ -906,7 +906,7 @@ function showTrophyModal() {
     <div style="margin:0 auto 12px"><svg viewBox="0 0 64 64" width="120" height="120"><path d="M18 10h28v16c0 9-6 16-14 16s-14-7-14-16V10z" fill="${fill}" stroke="#0b2545" stroke-width="2.5"/><path d="M18 14H10c0 9 4 14 8 14M46 14h8c0 9-4 14-8 14" fill="none" stroke="#0b2545" stroke-width="2.5" stroke-linecap="round"/><rect x="28" y="42" width="8" height="10" fill="#0b2545"/><rect x="20" y="52" width="24" height="5" rx="2" fill="#0b2545"/><polygon points="32,16 34.5,21 40,21.5 36,25 37,30.5 32,27.8 27,30.5 28,25 24,21.5 29.5,21" fill="#fff"/></svg></div>
     <div style="font-size:0.9rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--gold)">${tier} Executive Trophy</div>
     <h2>${headline}</h2>
-    <div class="modal-score">₹${s.profit} Cr / ₹227 Cr Max (${pct}%)</div>
+    <div class="modal-score">₹${s.profit} Cr / ₹224 Cr Max (${pct}%)</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 24px;text-align:left">
       <div style="background:var(--emerald-bg);border:1.5px solid var(--emerald-border);border-radius:12px;padding:12px 16px"><div style="font-size:0.76rem;text-transform:uppercase;color:var(--muted);font-weight:700">Follow-Up Load</div><strong style="font-size:1.3rem">${s.tax}%</strong> <span style="font-size:0.84rem;color:var(--emerald);font-weight:600">(Best: 0%)</span></div>
       <div style="background:var(--sapphire-bg);border:1.5px solid #bfdbfe;border-radius:12px;padding:12px 16px"><div style="font-size:0.76rem;text-transform:uppercase;color:var(--muted);font-weight:700">Competency Chain</div><strong style="font-size:1.3rem">${s.qual}%</strong> <span style="font-size:0.84rem;color:var(--sapphire);font-weight:600">(Best: 100%)</span></div>
@@ -918,7 +918,7 @@ function showTrophyModal() {
 }
 
 function copyShare() {
-  const txt = `I just completed The KILL BUSYness Engine (${s.industry})!\n🏆 Profit: ₹${s.profit} Cr / ₹227 Cr Max\n⚡ Follow-Up Load: ${s.tax}% | 🌟 Credibility: ${s.brand}% | 🧭 Whitespace: ${s.ws}%\nPlay here: ${window.location.origin}${s.teamCode ? '?team=' + encodeURIComponent(s.teamCode) : ''}`;
+  const txt = `I just completed The KILL BUSYness Engine (${s.industry})!\n🏆 Profit: ₹${s.profit} Cr / ₹224 Cr Max\n⚡ Follow-Up Load: ${s.tax}% | 🌟 Credibility: ${s.brand}% | 🧭 Whitespace: ${s.ws}%\nPlay here: ${window.location.origin}${s.teamCode ? '?team=' + encodeURIComponent(s.teamCode) : ''}`;
   navigator.clipboard.writeText(txt).then(() => alert("Executive Scorecard copied! Paste it into WhatsApp or LinkedIn."));
 }
 
@@ -1016,7 +1016,7 @@ function render() {
   if (s.phase === "final") {
     pill.textContent = "Final Executive Debrief";
     clearProgress();
-    const pctOfBest = Math.min(100, Math.max(0, Math.round((s.profit / 227) * 100)));
+    const pctOfBest = Math.min(100, Math.max(0, Math.round((s.profit / 224) * 100)));
     const verdict = s.profit >= 191 ? "Version 2.0 High-Performance Architect" : s.profit >= 121 ? "Transitioning Leader — Strong Momentum" : "Version 1.0 BUSYness Trap";
     // Save run for What-If history comparison
     let pastRuns = [];
@@ -1029,7 +1029,7 @@ function render() {
       <span class="kicker">10-Week Executive Debrief • ${s.industry}</span>
       <h2>${verdict}${s.ceoName ? ` — ${s.ceoName}` : ''}</h2>
       <div class="bench-bar">
-        <div><div style="font-size:0.74rem;text-transform:uppercase;color:#93c5fd;font-weight:700">Your Performance vs. Exact Maximum Achievable (V4.0)</div><strong>₹${s.profit} Cr</strong> <span style="color:#e2e8f0">out of ₹227 Cr Max (${pctOfBest}%) &bull; Gap: ₹${Math.max(0, 227 - s.profit)} Cr &bull; ${prevRunText}</span></div>
+        <div><div style="font-size:0.74rem;text-transform:uppercase;color:#93c5fd;font-weight:700">Your Performance vs. Exact Maximum Achievable (V4.0)</div><strong>₹${s.profit} Cr</strong> <span style="color:#e2e8f0">out of ₹224 Cr Max (${pctOfBest}%) &bull; Gap: ₹${Math.max(0, 224 - s.profit)} Cr &bull; ${prevRunText}</span></div>
         <div style="font-size:0.86rem">Follow-Up: <strong>${s.tax}%</strong> &bull; Quality: <strong>${s.qual}%</strong> &bull; Credibility: <strong>${s.brand}%</strong> &bull; Whitespace: <strong>${s.ws}%</strong></div>
       </div>
       ${s.wrongs.length ? `<div style="background:var(--crimson-bg);border:1.5px solid var(--crimson-border);border-radius:12px;padding:16px 20px;margin-bottom:18px"><div style="font-size:0.76rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--crimson);margin-bottom:8px">🔍 Counterfactual Analysis — Top ${Math.min(3, s.wrongs.length)} Decisions That Cost You The Most Profit</div>${s.wrongs.slice(0, 3).map((w, i) => `<div style="font-size:0.9rem;margin-bottom:5px"><strong>${i + 1}. Week ${w.wk} — ${w.title}:</strong> ${w.impact}</div>`).join("")}</div>` : ""}
@@ -1056,7 +1056,7 @@ function render() {
         <div id="fb-status" style="font-size:0.84rem;color:var(--emerald);font-weight:700"></div>
       </div>
       <div class="btn-row">
-        <button class="btn-main" onclick="init(true)">Play Again &amp; Beat ₹${Math.max(227, s.profit)} Cr</button>
+        <button class="btn-main" onclick="init(true)">Play Again &amp; Beat ₹${Math.max(224, s.profit)} Cr</button>
         <button class="btn-sec" onclick="copyShare()">📤 Copy Scorecard</button>
         <button class="btn-sec" onclick="createTeamLink()">👥 Challenge Core Team</button>
         <button class="btn-sec" onclick="window.print()">🖨 Print Certificate</button>
@@ -1149,7 +1149,7 @@ function submitWeek(salesOpp = 10) {
     if (best.dTax) optTax = Math.max(0, Math.min(75, optTax + best.dTax));
     if (best.dBrand) optBrand = Math.max(15, Math.min(100, optBrand + best.dBrand));
   });
-  const optCap = Math.max(2, Math.round(10 * (1 - optTax / 100)));
+  const optCap = Math.max(2, Math.floor(10 * (1 - optTax / 100)));
   const optMult = (optBrand + 3) >= 85 ? 2.4 : (optBrand + 3) >= 68 ? 1.5 : 0.7;
   // maxPossible computed below using full P&L
 
@@ -1193,7 +1193,7 @@ function submitWeek(salesOpp = 10) {
 
   // Delivery & Full P&L Engine (Revenue, Expenses, Quality Rework, Credibility Pricing +2% per +10% Credibility)
   const orders = inp.orders || 6;
-  const netCap = Math.max(2, Math.round(10 * (1 - s.tax / 100)));
+  const netCap = Math.max(2, Math.floor(10 * (1 - s.tax / 100)));
   const demand = orders + s.backlog;
   const delivered = Math.min(demand, netCap);
   const missed = Math.max(0, demand - delivered);
@@ -1246,7 +1246,7 @@ function submitWeek(salesOpp = 10) {
   else monkLines.push("Every commitment this week was honoured on time; when reliability becomes your quiet habit, credibility begins selling on your behalf.");
   const monk = monkLines.join("\n");
 
-  const nextCap = Math.max(2, Math.round(10 * (1 - s.tax / 100)));
+  const nextCap = Math.max(2, Math.floor(10 * (1 - s.tax / 100)));
   const dashReport = [
     {
       k: `P&L — Net Profit ₹${wkProfit} Cr (Rev ₹${wkRev} Cr − Exp ₹${wkExp} Cr)`,
