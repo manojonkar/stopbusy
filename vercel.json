@@ -1,5 +1,10 @@
 {
   "redirects": [
+    { "source": "/lab", "destination": "/lab/", "permanent": false },
     { "source": "/game", "destination": "/game/", "permanent": false }
+  ],
+  "rewrites": [
+    { "source": "/lab/", "destination": "/game/index.html" },
+    { "source": "/lab/(.*)", "destination": "/game/$1" }
   ]
 }

@@ -93,6 +93,6 @@ define(['./workbox-7e5eb42b'], (function (workbox) { 'use strict';
     "revision": "17c7d5dfd34cdda3f3274dc093874f47"
   }], {});
   workbox.cleanupOutdatedCaches();
-  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), { denylist: [/^\/game(\/|$)/] }));
+  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), { denylist: [/^\/(game|lab)(\/|$)/] }));
 
 }));
