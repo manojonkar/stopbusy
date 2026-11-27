@@ -425,7 +425,7 @@ const WEEKS = [
     whispers: [
       { who: "Production Head", txt: "“Give me 2 coordinators for 60 days so deliveries do not slip while we catch up.”" },
       { who: "Sales Head", txt: "“Demand is strong—take every order we can get so Q1 starts ahead of target.”" },
-      { who: "Quality Head", txt: "“If we rush this Lead Engineer hire today, we will pay for it in rework by Week 3.”" }
+      { who: "Quality Head", txt: "“I am concerned about rushing this Lead Engineer hire—cutting corners on selection rarely ends well.”" }
     ],
     levers: [
       { id: "orders", type: "slider", label: "1. Weekly Order Intake", desc: "Orders accepted this week.", min: 2, max: 10, val: 7, unit: " Orders" },
@@ -792,7 +792,7 @@ function init(fresh = false) {
   clearProgress();
   s = {
     phase: "intro", wk: 1, profit: 0, totRev: 0, totExp: 0, cash: 50, tax: 25, qual: 70, brand: 70, ws: 20,
-    backlog: 0, delayed: [], rights: [], wrongs: [], lastReview: null, history: [],
+    backlog: 0, delayed: [], rights: [], wrongs: [], choices: [], lastReview: null, history: [],
     ceoName: "", industry: "Manufacturing & Industrial", mode: "standard", teamCode: urlTeam,
     chain: [1, 1, 1, 1, 1, 1, 1], // 0=Red, 1=Amber, 2=Green across 7 links
     mondayPact: ""
@@ -1026,9 +1026,10 @@ function render() {
       <span class="kicker">10-Week Executive Debrief • ${s.industry}</span>
       <h2>${verdict}${s.ceoName ? ` — ${s.ceoName}` : ''}</h2>
       <div class="bench-bar">
-        <div><div style="font-size:0.74rem;text-transform:uppercase;color:#93c5fd;font-weight:700">Your Performance vs. Exact Maximum Achievable</div><strong>₹${s.profit} Cr</strong> <span style="color:#e2e8f0">out of ₹233 Cr Max (${pctOfBest}%) &bull; ${prevRunText}</span></div>
+        <div><div style="font-size:0.74rem;text-transform:uppercase;color:#93c5fd;font-weight:700">Your Performance vs. Exact Maximum Achievable (V4.0)</div><strong>₹${s.profit} Cr</strong> <span style="color:#e2e8f0">out of ₹233 Cr Max (${pctOfBest}%) &bull; Gap: ₹${Math.max(0, 233 - s.profit)} Cr &bull; ${prevRunText}</span></div>
         <div style="font-size:0.86rem">Follow-Up: <strong>${s.tax}%</strong> &bull; Quality: <strong>${s.qual}%</strong> &bull; Credibility: <strong>${s.brand}%</strong> &bull; Whitespace: <strong>${s.ws}%</strong></div>
       </div>
+      ${s.wrongs.length ? `<div style="background:var(--crimson-bg);border:1.5px solid var(--crimson-border);border-radius:12px;padding:16px 20px;margin-bottom:18px"><div style="font-size:0.76rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--crimson);margin-bottom:8px">🔍 Counterfactual Analysis — Top ${Math.min(3, s.wrongs.length)} Decisions That Cost You The Most Profit</div>${s.wrongs.slice(0, 3).map((w, i) => `<div style="font-size:0.9rem;margin-bottom:5px"><strong>${i + 1}. Week ${w.wk} — ${w.title}:</strong> ${w.impact}</div>`).join("")}</div>` : ""}
       ${buildChainBar()}
       ${buildChartsHTML()}
       <div class="debrief-cols">
@@ -1173,6 +1174,8 @@ function submitWeek(salesOpp = 10) {
       });
     }
     if (chosen.recT) (chosen.ok ? s.rights : s.wrongs).push({ wk: s.wk, title: chosen.recT, impact: chosen.recI, ch: chosen.ch });
+    if (!s.choices) s.choices = [];
+    s.choices.push({ wk: s.wk, lever: l.label.replace(/^\d+\.\s*/, ''), choice: chosen.t, ok: !!chosen.ok });
     const impParts = [];
     if (chosen.dTax) impParts.push(`Follow-Up ${chosen.dTax > 0 ? '+' : ''}${chosen.dTax}%`);
     if (chosen.dQual) impParts.push(`Quality ${chosen.dQual > 0 ? '+' : ''}${chosen.dQual}%`);

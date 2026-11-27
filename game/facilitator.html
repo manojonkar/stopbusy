@@ -50,8 +50,14 @@ th { font-size:0.72rem; text-transform:uppercase; color:var(--muted); background
       <input id="code-in" type="text" placeholder="Cohort Code (leave blank for ALL)">
       <button class="btn-p" onclick="loadCohort()">Load Live Cohort</button>
       <button class="btn-s" onclick="copyInvite()">📋 Copy Cohort Invite Link</button>
+      <button class="btn-s" onclick="exportCSV()">📥 Download CSV (Excel)</button>
       <button class="btn-s" onclick="window.print()">🖨 Print Cohort Report</button>
       <span id="status" style="font-size:0.86rem;color:var(--muted);font-weight:600"></span>
+    </div>
+
+    <div id="heatmap-box" style="display:none;background:#f8fafc;border:1.5px solid #cbd5e1;border-left:5px solid #0b2545;border-radius:10px;padding:14px 18px;margin-bottom:18px">
+      <div style="font-size:0.74rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#0b2545;margin-bottom:8px">🔥 Cohort Decision Heatmap (Most Common BUSYness Traps)</div>
+      <div id="heatmap-rows" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;font-size:0.84rem"></div>
     </div>
 
     <div class="kpis">
@@ -77,7 +83,22 @@ th { font-size:0.72rem; text-transform:uppercase; color:var(--muted); background
 const SB_URL = "https://oictzdcrdqgwawezwjzr.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pY3R6ZGNyZHFnd2F3ZXp3anpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5OTc5MzQsImV4cCI6MjEwMTU3MzkzNH0._-QPa4TDifIriTJlcuP05w6eCPnXUjcFDQNcFEQ0kB8";
 
+let lastData = [];
+const PASS = "KILLBUSY";
+function ensureAuth() {
+  if (sessionStorage.getItem("kb_fac_ok") === "1") return true;
+  const entered = prompt("Enter Facilitator Passcode to access Cohort Control Room:");
+  if (entered && entered.trim().toUpperCase() === PASS) {
+    sessionStorage.setItem("kb_fac_ok", "1");
+    return true;
+  }
+  document.getElementById("status").textContent = "🔒 Locked — Refresh and enter Facilitator Passcode.";
+  document.getElementById("rows").innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--crimson);padding:24px;font-weight:700">🔒 Facilitator Passcode Required. Refresh page to unlock.</td></tr>';
+  return false;
+}
+
 async function loadCohort() {
+  if (!ensureAuth()) return;
   const code = document.getElementById("code-in").value.trim().toUpperCase();
   const st = document.getElementById("status");
   st.textContent = "Loading...";
@@ -87,11 +108,43 @@ async function loadCohort() {
     const res = await fetch(url, { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } });
     if (!res.ok) throw new Error("Run supabase_setup.sql in Supabase SQL Editor first.");
     const data = await res.json();
+    lastData = data;
     st.textContent = `Loaded ${data.length} run(s) • Updated ${new Date().toLocaleTimeString()}`;
     renderTable(data);
+    renderHeatmap(data);
   } catch (e) {
     st.textContent = "⚠️ " + e.message;
   }
+}
+
+function renderHeatmap(data) {
+  const box = document.getElementById("heatmap-box");
+  const rows = document.getElementById("heatmap-rows");
+  const stats = {};
+  data.forEach(r => {
+    const arr = Array.isArray(r.choices_json) ? r.choices_json : [];
+    arr.forEach(c => {
+      const key = `W${c.wk}: ${c.lever}`;
+      if (!stats[key]) stats[key] = { tot: 0, traps: 0 };
+      stats[key].tot++;
+      if (!c.ok) stats[key].traps++;
+    });
+  });
+  const top = Object.entries(stats).map(([k, v]) => ({ k, pct: Math.round((v.traps / v.tot) * 100), n: v.tot })).sort((a, b) => b.pct - a.pct).slice(0, 6);
+  if (!top.length) { box.style.display = "none"; return; }
+  box.style.display = "block";
+  rows.innerHTML = top.map(t => `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px"><strong>${t.k}</strong><br><span style="color:${t.pct >= 50 ? '#dc2626' : '#059669'};font-weight:700">${t.pct}% chose BUSYness Trap</span> <span style="color:#64748b">(${t.n} leaders)</span></div>`).join("");
+}
+
+function exportCSV() {
+  if (!lastData.length) { alert("Load cohort data first."); return; }
+  const cols = ["created_at","ceo_name","team_code","industry","net_profit","total_rev","total_exp","follow_up","quality","credibility","whitespace","feedback_rating","monday_pact","feedback_note"];
+  const esc = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const csv = [cols.join(","), ...lastData.map(r => cols.map(c => esc(r[c])).join(","))].join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+  a.download = `KILL_BUSYness_Cohort_${(document.getElementById("code-in").value.trim() || "ALL")}.csv`;
+  a.click();
 }
 
 function renderTable(data) {
@@ -125,7 +178,8 @@ function renderTable(data) {
 
 function copyInvite() {
   const code = (document.getElementById("code-in").value.trim() || "COHORT2026").toUpperCase();
-  const url = `${window.location.origin}/?team=${encodeURIComponent(code)}`;
+  const base = window.location.href.replace(/facilitator\.html.*$/i, "");
+  const url = `${base}?team=${encodeURIComponent(code)}`;
   navigator.clipboard.writeText(url).then(() => alert(`Cohort Invite Link Copied:\n\n${url}`));
 }
 
