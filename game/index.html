@@ -999,7 +999,12 @@ function render() {
         <div class="delta-box ${r.dBrand === 0 ? '' : (brandPos ? 'pos' : 'neg')}"><div class="dl">Brand Credibility</div><div class="dv">${s.brand}%</div><span class="${r.dBrand === 0 ? 'pill-neu' : (brandPos ? 'pill-pos' : 'pill-neg')}">${r.dBrand > 0 ? '▲ +' : (r.dBrand < 0 ? '▼ ' : '')}${r.dBrand}%</span></div>
       </div>
       ${buildChartsHTML()}
-      <div class="logic-list">${r.logic.map(l => `<div class="logic-item ${l.cls}"><span class="imp-badge">${l.cls === 'good' ? '▲ POSITIVE' : '▼ NEGATIVE'}</span><div><strong>${l.title}</strong><p>${l.text}</p>${l.ch ? `<span class="ch-tag">📖 ${l.ch}</span>` : ""}</div></div>`).join("")}</div>
+      ${r.dashReport ? `<div style="background:var(--subtle);border:1.5px solid var(--border-strong);border-left:5px solid var(--navy);border-radius:14px;padding:18px 20px;margin:18px 0">
+        <div style="font-size:0.78rem;font-weight:800;text-transform:uppercase;letter-spacing:0.09em;color:var(--navy);margin-bottom:10px">📊 Detailed Weekly Executive Report — Dashboard Changes, Why &amp; Future Impact</div>
+        <div style="display:grid;gap:10px">${r.dashReport.map(item => `<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:0.9rem;line-height:1.5"><strong style="color:var(--navy)">${item.k}:</strong> ${item.why} <span style="color:var(--sapphire);font-weight:600">→ Future Impact:</span> ${item.future}</div>`).join("")}</div>
+      </div>` : ""}
+      <div style="font-size:0.78rem;font-weight:800;text-transform:uppercase;letter-spacing:0.09em;color:var(--navy);margin:14px 0 8px">🧭 Decision-by-Decision Breakdown (Every Success &amp; Failure Explained)</div>
+      <div class="logic-list">${r.logic.map(l => `<div class="logic-item ${l.cls}"><span class="imp-badge">${l.cls === 'good' ? '▲ SUCCESS' : '▼ TRAP / COST'}</span><div><strong>${l.title}</strong><p>${l.text}</p>${l.ch ? `<span class="ch-tag">📖 ${l.ch}</span>` : ""}</div></div>`).join("")}</div>
       <button class="btn-main" onclick="nextAfterReview()">${s.wk < 10 ? `Proceed to Week ${s.wk + 1} →` : "Open Final 10-Week Executive Debrief →"}</button>`;
     speakMonk(r.monk);
     return;
@@ -1124,7 +1129,7 @@ function render() {
 function submitWeek(salesOpp = 10) {
   if (window.speechSynthesis) window.speechSynthesis.cancel();
   const W = WEEKS[s.wk - 1];
-  const prevTax = s.tax, prevQual = s.qual, prevBrand = s.brand;
+  const prevTax = s.tax, prevQual = s.qual, prevBrand = s.brand, prevWs = s.ws;
   const logic = [];
   let goodChoices = 0;
 
@@ -1168,10 +1173,17 @@ function submitWeek(salesOpp = 10) {
       });
     }
     if (chosen.recT) (chosen.ok ? s.rights : s.wrongs).push({ wk: s.wk, title: chosen.recT, impact: chosen.recI, ch: chosen.ch });
+    const impParts = [];
+    if (chosen.dTax) impParts.push(`Follow-Up ${chosen.dTax > 0 ? '+' : ''}${chosen.dTax}%`);
+    if (chosen.dQual) impParts.push(`Quality ${chosen.dQual > 0 ? '+' : ''}${chosen.dQual}%`);
+    if (chosen.dBrand) impParts.push(`Credibility ${chosen.dBrand > 0 ? '+' : ''}${chosen.dBrand}%`);
+    if (chosen.dWs) impParts.push(`Whitespace ${chosen.dWs > 0 ? '+' : ''}${chosen.dWs}%`);
+    if (chosen.invCost) impParts.push(`Short-term investment ₹${chosen.invCost} Cr`);
+    const lagNote = chosen.lagWk ? ` ⏳ Future Impact (Week ${chosen.lagWk}): ${chosen.ok ? 'Compounds positively downstream.' : 'Creates delayed operational friction/rework downstream.'}` : "";
     logic.push({
       cls: chosen.ok ? "good" : "bad",
       title: `${l.label.replace(/^\d+\.\s*/, '')}: ${chosen.t}`,
-      text: (chosen.recI || (chosen.ok ? "Strengthened your Version 2.0 operating system." : "Added friction or eroded long-term capability.")) + (chosen.invCost ? ` (Short-term investment: ₹${chosen.invCost} Cr)` : ""),
+      text: (chosen.recI || (chosen.ok ? "Strengthened your Version 2.0 operating system and built durable organizational capability." : "Added operational friction, reactive follow-up, or eroded long-term capability.")) + (impParts.length ? ` [Dashboard Impact: ${impParts.join(" • ")}]` : "") + lagNote,
       ch: chosen.ch || ""
     });
   });
@@ -1231,8 +1243,37 @@ function submitWeek(salesOpp = 10) {
   else monkLines.push("Every commitment this week was honoured on time; when reliability becomes your quiet habit, credibility begins selling on your behalf.");
   const monk = monkLines.join("\n");
 
+  const nextCap = Math.max(2, Math.round(10 * (1 - s.tax / 100)));
+  const dashReport = [
+    {
+      k: `P&L — Net Profit ₹${wkProfit} Cr (Rev ₹${wkRev} Cr − Exp ₹${wkExp} Cr)`,
+      why: `Shipped ${delivered} of ${demand} orders at ₹${unitPrice.toFixed(2)} Cr/order. Expenses included Fixed ₹8 Cr, Delivery ₹${Math.round(delivered * 2)} Cr, Quality Rework ₹${reworkCost.toFixed(1)} Cr, Chase Overhead ₹${chaseCost.toFixed(1)} Cr${invExpense ? `, and System Investments ₹${invExpense} Cr` : ""}.`,
+      future: missed > 0 ? `${missed} missed orders carried into next week's backlog (+₹${(missed * 1.5).toFixed(1)} Cr penalty risk) — match intake to capacity.` : `Clean zero-backlog execution protects margins and keeps next week's capacity 100% available for fresh revenue.`
+    },
+    {
+      k: `Follow-Up Load (${prevTax}% → ${s.tax}%)`,
+      why: s.tax < prevTax ? `Dropped by ${prevTax - s.tax}% because you built direct ownership and avoided the Chase Machine.` : s.tax > prevTax ? `Rose by ${s.tax - prevTax}% due to follow-up dependency, coordinators, or delivery backlog.` : `Held steady at ${s.tax}%.`,
+      future: `Your effective delivery capacity entering Week ${Math.min(10, s.wk + 1)} is ${nextCap} orders/week (every 10% drop in Follow-Up permanently unlocks +1 order/week of capacity).`
+    },
+    {
+      k: `Competency / Quality (${prevQual}% → ${s.qual}%)`,
+      why: s.qual > prevQual ? `Improved by +${s.qual - prevQual}% through rigorous hiring, training, or standards.` : s.qual < prevQual ? `Dropped by ${s.qual - prevQual}% due to shortcuts or delayed rework arriving this week.` : `Held steady at ${s.qual}%.`,
+      future: `At ${s.qual}% Quality, hidden rework costs ₹${reworkCost.toFixed(1)} Cr/week. Pushing Quality above 85% eliminates rework drag and protects client trust.`
+    },
+    {
+      k: `Brand Credibility (${prevBrand}% → ${s.brand}%)`,
+      why: s.brand > prevBrand ? `Rose by +${s.brand - prevBrand}% from reliable delivery and disciplined leadership.` : s.brand < prevBrand ? `Fell by ${s.brand - prevBrand}% from missed deliveries, shortcuts, or reactive discounting.` : `Held steady at ${s.brand}%.`,
+      future: `Credibility directly sets your pricing power (currently ₹${unitPrice.toFixed(2)} Cr/order). Every +10% Credibility adds +2% revenue on every future order.`
+    },
+    {
+      k: `CEO Whitespace (${prevWs}% → ${s.ws}%)`,
+      why: s.ws > prevWs ? `Expanded by +${s.ws - prevWs}% by delegating cleanly and cutting busywork.` : s.ws < prevWs ? `Shrank by ${s.ws - prevWs}% as reactive work crowded your calendar.` : `Held steady at ${s.ws}%.`,
+      future: s.ws < 20 ? `WARNING: Below 20% Whitespace adds +₹2 Cr/week in firefighting overhead and leaves zero buffer for market shocks.` : s.ws >= 50 ? `STRONG: 50%+ Whitespace earns a -₹1.5 Cr/week Strategic Clarity Dividend every week.` : `Push toward 50%+ Whitespace to unlock the -₹1.5 Cr/week Strategic Clarity Dividend.`
+    }
+  ];
+
   s.history.push({ wk: s.wk, focus: W.focus, delivered, backlog: s.backlog, tax: s.tax, qual: s.qual, brand: s.brand, wkRev, wkExp, wkProfit, maxPossible });
-  s.lastReview = { wkRev, wkExp, wkProfit, maxPossible, pctMax, delivered, demand, dTax: s.tax - prevTax, dQual: s.qual - prevQual, dBrand: s.brand - prevBrand, logic, monk };
+  s.lastReview = { wkRev, wkExp, wkProfit, maxPossible, pctMax, delivered, demand, dTax: s.tax - prevTax, dQual: s.qual - prevQual, dBrand: s.brand - prevBrand, logic, monk, dashReport };
 
   if (missed > 0) sfxWarn(); else sfxGood();
   s.phase = "review";
