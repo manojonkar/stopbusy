@@ -173,7 +173,9 @@ h2 { font-size: 1.7rem; margin-bottom: 10px; }
 .setup-field label { display: block; font-weight: 700; font-size: 0.84rem; color: var(--navy); margin-bottom: 4px; }
 .setup-field input, .setup-field select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border-strong); border-radius: 8px; font-size: 0.95rem; background: var(--bg); color: var(--text); }
 
-.debrief-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+.debrief-cols { display: grid; grid-template-columns: 2.1fr 0.9fr; gap: 16px; margin: 20px 0; }
+.rights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+@media (max-width: 820px) { .rights-grid { grid-template-columns: 1fr; } }
 .debrief-col { background: var(--subtle); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
 .debrief-col.right-col { border-top: 5px solid var(--emerald); }
 .debrief-col.fix-col { border-top: 5px solid var(--crimson); }
@@ -291,7 +293,8 @@ async function pushRunToSupabase(note = "", rating = null) {
         team_code: (s.teamCode || "GLOBAL").toUpperCase(),
         net_profit: s.profit, total_rev: s.totRev, total_exp: s.totExp,
         follow_up: s.tax, quality: s.qual, credibility: s.brand, whitespace: s.ws,
-        monday_pact: s.mondayPact || "", feedback_note: note, feedback_rating: rating
+        monday_pact: s.mondayPact || "", feedback_note: note, feedback_rating: rating,
+        choices_json: s.choices || [], build_version: "V4.0"
       })
     });
   } catch (e) {}
@@ -423,7 +426,7 @@ const WEEKS = [
     title: "Strong Demand, Tight Deadlines",
     lead: "<p>You are the CEO. We are at the start of Week 1.</p><p>Market demand is healthy. Some internal friction is there as in most companies.</p><p>Your Operations Head reports spending half her week chasing overdue handoffs and wants to hire coordinators immediately.</p><p>Meanwhile, a flagship project kicks off soon without a Lead Engineer, weekly meetings end without named owners, and VPs are watching how you personally model standards.</p><p>Decide how you will set the operating tone from Day 1.</p>",
     whispers: [
-      { who: "Production Head", txt: "“Give me 2 coordinators for 60 days so deliveries do not slip while we catch up.”" },
+      { who: "Production Head", txt: "“Give me 2 coordinators for the next 8 weeks so deliveries do not slip while we catch up.”" },
       { who: "Sales Head", txt: "“Demand is strong—take every order we can get so Q1 starts ahead of target.”" },
       { who: "Quality Head", txt: "“I am concerned about rushing this Lead Engineer hire—cutting corners on selection rarely ends well.”" }
     ],
@@ -594,7 +597,7 @@ const WEEKS = [
     monkBad: "A mind packed from dawn to midnight cannot hear what is emerging. Where six signatures guard small tasks, silence quietly replaces care."
   },
   {
-    wk: 6, focus: "Assumptions & Black Swan", kicker: "Week 6 of 10 • Mid-Year Audit + Unexpected Curveball",
+    wk: 6, focus: "Assumptions & Black Swan", kicker: "Week 6 of 10 • Mid-Point Audit + Unexpected Curveball",
     title: "Challenging Assumptions & A Sudden Supplier Shock",
     lead: "<p>You have reached the halfway mark—and an unexpected Black Swan hits: a Tier-1 supplier just suffered a sudden outage, threatening 20% of deliveries.</p><p>Meanwhile, your core market assumptions have not been audited in five years, and the Board is reviewing executive scorecards.</p><p>Set your direction for the second half while absorbing the supplier shock.</p>",
     whispers: [
@@ -1026,25 +1029,22 @@ function render() {
       <span class="kicker">10-Week Executive Debrief • ${s.industry}</span>
       <h2>${verdict}${s.ceoName ? ` — ${s.ceoName}` : ''}</h2>
       <div class="bench-bar">
-        <div><div style="font-size:0.74rem;text-transform:uppercase;color:#93c5fd;font-weight:700">Your Performance vs. Exact Maximum Achievable (V4.0)</div><strong>₹${s.profit} Cr</strong> <span style="color:#e2e8f0">out of ₹233 Cr Max (${pctOfBest}%) &bull; Gap: ₹${Math.max(0, 233 - s.profit)} Cr &bull; ${prevRunText}</span></div>
+        <div><div style="font-size:0.74rem;text-transform:uppercase;color:#93c5fd;font-weight:700">Your Performance vs. Exact Maximum Achievable (V4.0)</div><strong>₹${s.profit} Cr</strong> <span style="color:#e2e8f0">out of ₹227 Cr Max (${pctOfBest}%) &bull; Gap: ₹${Math.max(0, 227 - s.profit)} Cr &bull; ${prevRunText}</span></div>
         <div style="font-size:0.86rem">Follow-Up: <strong>${s.tax}%</strong> &bull; Quality: <strong>${s.qual}%</strong> &bull; Credibility: <strong>${s.brand}%</strong> &bull; Whitespace: <strong>${s.ws}%</strong></div>
       </div>
       ${s.wrongs.length ? `<div style="background:var(--crimson-bg);border:1.5px solid var(--crimson-border);border-radius:12px;padding:16px 20px;margin-bottom:18px"><div style="font-size:0.76rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--crimson);margin-bottom:8px">🔍 Counterfactual Analysis — Top ${Math.min(3, s.wrongs.length)} Decisions That Cost You The Most Profit</div>${s.wrongs.slice(0, 3).map((w, i) => `<div style="font-size:0.9rem;margin-bottom:5px"><strong>${i + 1}. Week ${w.wk} — ${w.title}:</strong> ${w.impact}</div>`).join("")}</div>` : ""}
       ${buildChainBar()}
       ${buildChartsHTML()}
       <div class="debrief-cols">
-        <div class="debrief-col right-col"><h3>▲ What You Did Right &amp; How It Helped</h3>${s.rights.length ? s.rights.map(x => `<div class="d-entry"><strong>W${x.wk}: ${x.title}</strong><span>${x.impact}</span>${x.ch ? `<br><span class="ch-tag">${x.ch}</span>` : ''}</div>`).join("") : '<p style="color:var(--muted)">Try replaying with stricter Version 2.0 standards.</p>'}</div>
+        <div class="debrief-col right-col"><h3>▲ What You Did Right &amp; How It Helped</h3>${s.rights.length ? `<div class="rights-grid">${s.rights.map(x => `<div class="d-entry"><strong>W${x.wk}: ${x.title}</strong><span>${x.impact}</span>${x.ch ? `<br><span class="ch-tag">${x.ch}</span>` : ''}</div>`).join("")}</div>` : '<p style="color:var(--muted)">Try replaying with stricter Version 2.0 standards.</p>'}</div>
         <div class="debrief-col fix-col"><h3>▼ What Could Be Done Differently &amp; Chapter Guide</h3>${s.wrongs.length ? s.wrongs.map(x => `<div class="d-entry"><strong>W${x.wk}: ${x.title}</strong><span>${x.impact}</span>${x.ch ? `<br><span class="ch-tag">Read: ${x.ch}</span>` : ''}</div>`).join("") : '<p style="color:var(--emerald)">Exceptional discipline across all 10 weeks!</p>'}</div>
-      </div>
-      <div class="callout">
-        <strong>Your Monday Morning Commitment:</strong><br>
-        <input style="width:100%;padding:10px 12px;margin-top:8px;border:1.5px solid var(--border-strong);border-radius:8px;font-size:0.96rem" placeholder="Write 1 thing you will STOP doing this Monday (included when you print your certificate)..." oninput="s.mondayPact=this.value">
       </div>
       <div style="margin:16px 0">
         <strong style="font-size:0.86rem;text-transform:uppercase;color:var(--navy)">Explore Kill BUSYness Principles (Click to Read):</strong>
         <div class="gloss-row">${Object.keys(GLOSSARY).map(k => `<button class="gloss-btn" onclick="showGloss('${k.replace(/'/g, "\\'")}')">${k}</button>`).join("")}</div>
         <div id="gloss-box" class="gloss-box hidden"></div>
       </div>
+      <h3 style="margin:26px 0 10px;font-family:var(--serif);font-size:1.25rem;color:var(--navy);border-top:2px solid var(--border);padding-top:18px">📊 10-Week Financial &amp; KPI Performance Summary</h3>
       <table><thead><tr><th>Wk</th><th>Focus</th><th>Delivered</th><th>Follow-Up</th><th>Quality</th><th>Credibility</th><th>Revenue</th><th>Expense</th><th>Net Profit</th></tr></thead><tbody>${s.history.map(h => `<tr><td>W${h.wk}</td><td>${h.focus}</td><td>${h.delivered}</td><td>${h.tax}%</td><td>${h.qual}%</td><td>${h.brand}%</td><td>₹${h.wkRev} Cr</td><td>₹${h.wkExp} Cr</td><td><strong>₹${h.wkProfit} Cr</strong></td></tr>`).join("")}</tbody></table>
       <div class="callout" style="background:var(--subtle);border-color:var(--border);border-left-color:var(--sapphire)">
         <strong>Share Quick Feedback:</strong>
@@ -1056,7 +1056,7 @@ function render() {
         <div id="fb-status" style="font-size:0.84rem;color:var(--emerald);font-weight:700"></div>
       </div>
       <div class="btn-row">
-        <button class="btn-main" onclick="init(true)">Play Again &amp; Beat ₹${Math.max(233, s.profit)} Cr</button>
+        <button class="btn-main" onclick="init(true)">Play Again &amp; Beat ₹${Math.max(227, s.profit)} Cr</button>
         <button class="btn-sec" onclick="copyShare()">📤 Copy Scorecard</button>
         <button class="btn-sec" onclick="createTeamLink()">👥 Challenge Core Team</button>
         <button class="btn-sec" onclick="window.print()">🖨 Print Certificate</button>
