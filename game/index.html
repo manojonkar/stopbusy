@@ -422,7 +422,7 @@ function fireConfetti() {
 
 const WEEKS = [
   {
-    wk: 1, focus: "Q1 Kickoff", kicker: "Week 1 of 10 • Q1 Kickoff & Rising Demand",
+    wk: 1, focus: "Week 1 Kickoff", kicker: "Week 1 of 10 • Q1 Kickoff & Rising Demand",
     title: "Strong Demand, Tight Deadlines",
     lead: "<p>You are the CEO. We are at the start of Week 1.</p><p>Market demand is healthy. Some internal friction is there as in most companies.</p><p>Your Operations Head reports spending half her week chasing overdue handoffs and wants to hire coordinators immediately.</p><p>Meanwhile, a flagship project kicks off soon without a Lead Engineer, weekly meetings end without named owners, and VPs are watching how you personally model standards.</p><p>Decide how you will set the operating tone from Day 1.</p>",
     whispers: [
@@ -484,7 +484,7 @@ const WEEKS = [
       ]},
       { id: "dash", type: "opt", label: "5. Performance Reporting", desc: "Every VP wants their own custom KPI dashboard.", opts: [
         { v: "many", t: "Build a separate dashboard for each department", dTax: 5, ok: false, ch: "Ch 6 (Silos)" },
-        { v: "both", t: "Allow local dashboards plus a monthly summary", dTax: 2, ok: false, ch: "Ch 6 (Silos)" },
+        { v: "both", t: "Allow local dashboards plus a weekly summary", dTax: 2, ok: false, ch: "Ch 6 (Silos)" },
         { v: "one", t: "Maintain one shared company-wide truth board", dTax: -4, ok: true, ch: "Ch 6 (Alignment)" }
       ]}
     ],
@@ -492,9 +492,9 @@ const WEEKS = [
     monkBad: "A river that flows into every ditch loses the force to reach the ocean. When purpose evaporates into dry checklists, effort rises while meaning fades."
   },
   {
-    wk: 3, focus: "Strategy & Promo", kicker: "Week 3 of 10 • Mid-Quarter Stretch",
+    wk: 3, focus: "Strategy & Promo", kicker: "Week 3 of 10 • Strategy & Portfolio Focus",
     title: "Strategic Choices & A Key Promotion",
-    lead: "<p>You are now in the middle of the quarter.</p><p>Your teams are currently supporting five business lines and pursuing multiple customer segments at once.</p><p>A senior Plant Manager role has opened up, and your strongest technical engineer expects the promotion based on tenure.</p><p>Meanwhile, marketing is asking for 20% of leadership bandwidth for a visible brand refresh.</p>",
+    lead: "<p>You are now in the early phase of the 10-week cycle.</p><p>Your teams are currently supporting five business lines and pursuing multiple customer segments at once.</p><p>A senior Plant Manager role has opened up, and your strongest technical engineer expects the promotion based on tenure.</p><p>Meanwhile, marketing is asking for 20% of leadership bandwidth for a visible brand refresh.</p>",
     whispers: [
       { who: "Marketing Head", txt: "“A fresh logo and deck will impress clients right now—give us 20% of team bandwidth.”" },
       { who: "Production Head", txt: "“Promote our senior engineer; he knows the machines better than anyone.”" },
@@ -603,7 +603,7 @@ const WEEKS = [
     whispers: [
       { who: "Board Chair", txt: "“Tighter departmental SLAs will keep VPs accountable during this supplier outage.”" },
       { who: "Supply Chain Head", txt: "“Instead of penalizing our Tier-1 supplier, let us co-solve this outage as ecosystem partners.”" },
-      { who: "CFO", txt: "“Postpone your monthly reflection days until the supplier issue clears.”" }
+      { who: "CFO", txt: "“Postpone your protected reflection days until the supplier issue clears.”" }
     ],
     levers: [
       { id: "orders", type: "slider", label: "1. Weekly Order Intake", desc: "Orders accepted this week.", min: 3, max: 10, val: 6, unit: " Orders" },
@@ -615,7 +615,7 @@ const WEEKS = [
       { id: "reflect", type: "opt", label: "3. Monthly Reflection Cadence", desc: "Protected off-site strategic reflection.", opts: [
         { v: "zero", t: "0 days — think through strategy on weekends", dWs: -4, ok: false, ch: "Ch 5 (Mount Neverest)" },
         { v: "half", t: "Block one 2-hour slot when calendar allows", dWs: 3, ok: false, ch: "Ch 5 (Mount Neverest)" },
-        { v: "two", t: "Protect 2 untouchable reflection days every month", dWs: 14, ok: true, ch: "Ch 5 (Mount Neverest)" }
+        { v: "two", t: "Protect 2 untouchable reflection days each cycle", dWs: 14, ok: true, ch: "Ch 5 (Mount Neverest)" }
       ]},
       { id: "kpi", type: "opt", label: "4. Executive Scorecards", desc: "How are VPs evaluated in the second half?", opts: [
         { v: "dept", t: "Enforce tighter departmental SLAs", dTax: 5, ok: false, ch: "Ch 6 (Silos)" },
@@ -645,7 +645,7 @@ const WEEKS = [
       { id: "cert", type: "opt", label: "2. Scaling Reliability", desc: "How do you extend zero-follow-up two levels down?", opts: [
         { v: "inf", t: "Give verbal reminders during monthly reviews", dTax: 5, ok: false, ch: "Ch 6 & 8 (NFR)" },
         { v: "audit", t: "Run quarterly spot-checks from the CEO's office", dTax: 2, ok: false, ch: "Ch 6 & 8 (NFR)" },
-        { v: "nfr", t: "Institute monthly leadership NFR certification", dTax: -8, ok: true, ch: "Ch 6 & 8 (NFR Scaling)" }
+        { v: "nfr", t: "Institute recurring leadership NFR certification", dTax: -8, ok: true, ch: "Ch 6 & 8 (NFR Scaling)" }
       ]},
       { id: "disrupt", type: "opt", label: "3. Legacy Service Model", desc: "Redesign your own legacy model before rivals do?", opts: [
         { v: "wait", t: "Optimize the existing playbook while it still pays", dBrand: -4, lagWk: 9, lagBrand: -8, ok: false, ch: "Ch 7 (Paradigm Disruption)" },
@@ -896,7 +896,7 @@ function buildChartsHTML() {
 }
 
 function showTrophyModal() {
-  const pct = Math.min(100, Math.max(0, Math.round((s.profit / 233) * 100)));
+  const pct = Math.min(100, Math.max(0, Math.round((s.profit / 227) * 100)));
   const tier = s.profit >= 191 ? "Gold" : s.profit >= 121 ? "Silver" : "Bronze";
   const fill = tier === "Gold" ? "#f59e0b" : tier === "Silver" ? "#94a3b8" : "#b45309";
   const nameStr = s.ceoName ? `, ${s.ceoName}` : "";
@@ -906,7 +906,7 @@ function showTrophyModal() {
     <div style="margin:0 auto 12px"><svg viewBox="0 0 64 64" width="120" height="120"><path d="M18 10h28v16c0 9-6 16-14 16s-14-7-14-16V10z" fill="${fill}" stroke="#0b2545" stroke-width="2.5"/><path d="M18 14H10c0 9 4 14 8 14M46 14h8c0 9-4 14-8 14" fill="none" stroke="#0b2545" stroke-width="2.5" stroke-linecap="round"/><rect x="28" y="42" width="8" height="10" fill="#0b2545"/><rect x="20" y="52" width="24" height="5" rx="2" fill="#0b2545"/><polygon points="32,16 34.5,21 40,21.5 36,25 37,30.5 32,27.8 27,30.5 28,25 24,21.5 29.5,21" fill="#fff"/></svg></div>
     <div style="font-size:0.9rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--gold)">${tier} Executive Trophy</div>
     <h2>${headline}</h2>
-    <div class="modal-score">₹${s.profit} Cr / ₹233 Cr Max (${pct}%)</div>
+    <div class="modal-score">₹${s.profit} Cr / ₹227 Cr Max (${pct}%)</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 24px;text-align:left">
       <div style="background:var(--emerald-bg);border:1.5px solid var(--emerald-border);border-radius:12px;padding:12px 16px"><div style="font-size:0.76rem;text-transform:uppercase;color:var(--muted);font-weight:700">Follow-Up Load</div><strong style="font-size:1.3rem">${s.tax}%</strong> <span style="font-size:0.84rem;color:var(--emerald);font-weight:600">(Best: 0%)</span></div>
       <div style="background:var(--sapphire-bg);border:1.5px solid #bfdbfe;border-radius:12px;padding:12px 16px"><div style="font-size:0.76rem;text-transform:uppercase;color:var(--muted);font-weight:700">Competency Chain</div><strong style="font-size:1.3rem">${s.qual}%</strong> <span style="font-size:0.84rem;color:var(--sapphire);font-weight:600">(Best: 100%)</span></div>
@@ -918,7 +918,7 @@ function showTrophyModal() {
 }
 
 function copyShare() {
-  const txt = `I just completed The KILL BUSYness Engine (${s.industry})!\n🏆 Profit: ₹${s.profit} Cr / ₹233 Cr Max\n⚡ Follow-Up Load: ${s.tax}% | 🌟 Credibility: ${s.brand}% | 🧭 Whitespace: ${s.ws}%\nPlay here: ${window.location.origin}${s.teamCode ? '?team=' + encodeURIComponent(s.teamCode) : ''}`;
+  const txt = `I just completed The KILL BUSYness Engine (${s.industry})!\n🏆 Profit: ₹${s.profit} Cr / ₹227 Cr Max\n⚡ Follow-Up Load: ${s.tax}% | 🌟 Credibility: ${s.brand}% | 🧭 Whitespace: ${s.ws}%\nPlay here: ${window.location.origin}${s.teamCode ? '?team=' + encodeURIComponent(s.teamCode) : ''}`;
   navigator.clipboard.writeText(txt).then(() => alert("Executive Scorecard copied! Paste it into WhatsApp or LinkedIn."));
 }
 
@@ -1016,7 +1016,7 @@ function render() {
   if (s.phase === "final") {
     pill.textContent = "Final Executive Debrief";
     clearProgress();
-    const pctOfBest = Math.min(100, Math.max(0, Math.round((s.profit / 233) * 100)));
+    const pctOfBest = Math.min(100, Math.max(0, Math.round((s.profit / 227) * 100)));
     const verdict = s.profit >= 191 ? "Version 2.0 High-Performance Architect" : s.profit >= 121 ? "Transitioning Leader — Strong Momentum" : "Version 1.0 BUSYness Trap";
     // Save run for What-If history comparison
     let pastRuns = [];
