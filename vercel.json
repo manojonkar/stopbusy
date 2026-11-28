@@ -1,5 +1,6 @@
 {
   "redirects": [
+    { "source": "/ceolab", "destination": "/ceolab/", "permanent": false },
     { "source": "/lab", "destination": "/lab/", "permanent": false },
     { "source": "/game", "destination": "/game/", "permanent": false }
   ],

@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The KILL BUSYness CEO Lab (V6.0) — HPO Balanced Scorecard Simulation</title>
+<base href="/game/">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff; --canvas: #f1f5f9; --subtle: #f8fafc; --border: #e2e8f0; --border-strong: #cbd5e1;
+  --navy: #0b2545; --sapphire: #1d4ed8; --sapphire-bg: #eff6ff;
+  --gold: #d97706; --gold-bg: #fffbeb; --gold-border: #fde68a;
+  --emerald: #059669; --emerald-bg: #ecfdf5; --emerald-border: #6ee7b7;
+  --crimson: #dc2626; --crimson-bg: #fef2f2; --crimson-border: #fca5a5;
+  --text: #0f172a; --muted: #64748b;
+  --serif: 'Playfair Display', Georgia, serif; --sans: 'Inter', -apple-system, sans-serif;
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --canvas: #020617; --subtle: #1e293b; --border: #334155; --border-strong: #475569;
+  --navy: #f8fafc; --sapphire: #60a5fa; --sapphire-bg: rgba(59,130,246,0.16);
+  --gold-bg: rgba(217,119,6,0.16); --gold-border: #b45309;
+  --emerald-bg: rgba(5,150,105,0.16); --emerald-border: #059669;
+  --crimson-bg: rgba(233,38,38,0.16); --crimson-border: #dc2626;
+  --text: #f1f5f9; --muted: #94a3b8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--canvas); color: var(--text); font-family: var(--sans); font-size: 15.5px; line-height: 1.6; transition: background 0.2s, color 0.2s; }
+
+.nav { background: #0b2545; color: #fff; padding: 12px 28px; position: sticky; top: 0; z-index: 30; box-shadow: 0 4px 16px rgba(11,37,69,0.18); }
+.nav-in { max-width: 1360px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand strong { font-family: var(--serif); color: #fff; font-size: 1.25rem; }
+.brand span { display: block; font-size: 0.72rem; color: #93c5fd; text-transform: uppercase; letter-spacing: 0.09em; }
+.nav-btn { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.28); color: #fff; padding: 6px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+
+.prog-wrap { background: var(--bg); border-bottom: 1px solid var(--border); padding: 9px 28px; }
+.prog-in { max-width: 1360px; margin: 0 auto; }
+.prog-meta { display: flex; justify-content: space-between; font-size: 0.84rem; font-weight: 700; color: var(--navy); margin-bottom: 5px; }
+.prog-track { height: 10px; background: var(--border); border-radius: 999px; overflow: hidden; }
+.prog-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #1d4ed8, #059669); border-radius: 999px; transition: width 0.4s ease; }
+
+.wrap { max-width: 1360px; margin: 20px auto 64px; padding: 0 24px; }
+
+/* 7-KPI Dashboard — Compact Single Line: Follow-Up, Quality, Revenue, Expenses, Net Profit, Credibility, Whitespace */
+.kpis { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 18px; }
+.kpi { background: var(--gold-bg); border: 1px solid var(--gold-border); border-top: 4px solid var(--gold); border-radius: 10px; padding: 10px 10px; box-shadow: 0 2px 8px rgba(217,119,6,0.08); }
+.kpi .lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 700; }
+.kpi .val { font-family: var(--serif); font-size: 1.32rem; font-weight: 700; color: #92400e; margin-top: 2px; }
+[data-theme="dark"] .kpi .val { color: #fde68a; }
+.kpi .sub { font-size: 0.68rem; color: var(--muted); }
+
+.screen { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 32px 38px; box-shadow: 0 8px 30px rgba(11,37,69,0.06); animation: fadeUp 0.25s ease; }
+.kicker { display: inline-block; font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.09em; color: var(--sapphire); background: var(--sapphire-bg); padding: 4px 11px; border-radius: 6px; margin-bottom: 8px; }
+h1, h2 { font-family: var(--serif); color: var(--navy); line-height: 1.2; }
+h1 { font-size: 2.3rem; margin-bottom: 12px; }
+h2 { font-size: 1.7rem; margin-bottom: 10px; }
+.lead { font-size: 1.12rem; line-height: 1.65; margin-bottom: 20px; }
+
+.callout { background: var(--gold-bg); border: 1.5px solid var(--gold-border); border-left: 5px solid var(--gold); padding: 16px 20px; border-radius: 0 12px 12px 0; margin-bottom: 20px; font-size: 1.02rem; }
+.brief-box { background: linear-gradient(135deg, var(--subtle), var(--sapphire-bg)); border: 1.5px solid #bfdbfe; border-left: 5px solid var(--navy); border-radius: 0 14px 14px 0; padding: 20px 24px; margin-bottom: 18px; }
+.brief-lbl { font-size: 0.76rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sapphire); margin-bottom: 8px; display: block; }
+.brief-txt { font-size: 1.12rem; line-height: 1.68; margin-bottom: 12px; }
+.brief-txt p + p { margin-top: 9px; }
+.brief-ripple { background: var(--gold-bg); border: 1px solid var(--gold-border); border-radius: 8px; padding: 10px 14px; margin: 10px 0 12px; font-size: 0.94rem; font-weight: 600; }
+.brief-meta { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 0.86rem; }
+.brief-pill { background: var(--bg); border: 1px solid var(--border-strong); padding: 5px 12px; border-radius: 7px; font-weight: 700; }
+
+/* Animated CXO Inputs Board */
+.cxo-section { margin-bottom: 22px; }
+.cxo-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.cxo-title { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.09em; color: var(--navy); }
+.cxo-play-all { background: var(--navy); color: #fde68a; border: none; border-radius: 999px; padding: 5px 14px; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+.whisper-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.cxo-card {
+  background: var(--bg); border: 1.5px solid var(--border-strong); border-top: 4px solid var(--sapphire);
+  border-radius: 12px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start;
+  box-shadow: 0 4px 14px rgba(11,37,69,0.05); opacity: 0; animation: cxoSlide 0.45s ease forwards;
+}
+.cxo-card:nth-child(1) { animation-delay: 0.08s; }
+.cxo-card:nth-child(2) { animation-delay: 0.24s; }
+.cxo-card:nth-child(3) { animation-delay: 0.40s; }
+.cxo-av {
+  width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 1.35rem; flex-shrink: 0; color: #fff; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.16);
+  overflow: hidden; border: 2.5px solid var(--sapphire);
+}
+.cxo-av img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; display: block; }
+.cxo-info { flex: 1; }
+.cxo-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 4px; }
+.cxo-head strong { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--navy); }
+.cxo-spk { background: var(--subtle); border: 1px solid var(--border-strong); color: var(--navy); border-radius: 999px; padding: 2px 8px; font-size: 0.7rem; font-weight: 700; cursor: pointer; }
+.cxo-spk:hover { background: var(--sapphire); color: #fff; border-color: var(--sapphire); }
+.cxo-txt { font-size: 0.9rem; color: var(--text); line-height: 1.48; font-style: italic; }
+@keyframes cxoSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* 5-Lever Cards */
+.lever-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(295px, 1fr)); gap: 16px; margin-bottom: 22px; }
+.lever { background: var(--bg); border: 1.5px solid var(--border-strong); border-top: 4px solid var(--sapphire); border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 14px rgba(11,37,69,0.04); transition: transform 0.18s, box-shadow 0.18s, border-color 0.2s; }
+.lever:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(11,37,69,0.08); }
+.lever.decided { border-top-color: var(--emerald); border-color: var(--emerald-border); }
+.lever-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.lever label { font-weight: 800; font-size: 1.05rem; color: var(--navy); }
+.decided-tag { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; background: var(--emerald); color: #fff; padding: 2px 8px; border-radius: 999px; display: none; }
+.lever.decided .decided-tag { display: inline-block; }
+.lever .desc { font-size: 0.94rem; color: var(--muted); margin-bottom: 14px; display: block; }
+.lever input[type="range"] { width: 100%; accent-color: var(--sapphire); cursor: pointer; height: 7px; }
+.readout { font-family: var(--serif); font-size: 1.35rem; font-weight: 700; color: var(--sapphire); margin-top: 10px; }
+.opt-stack { display: flex; flex-direction: column; gap: 8px; }
+.opt-btn { text-align: left; padding: 11px 14px; border: 1.5px solid var(--border-strong); background: var(--bg); border-radius: 9px; font-size: 0.94rem; font-weight: 600; cursor: pointer; color: var(--text); transition: all 0.15s; }
+.opt-btn:hover { border-color: var(--sapphire); background: var(--sapphire-bg); transform: translateX(2px); }
+.opt-btn.active { border-color: var(--sapphire); background: var(--sapphire); color: #fff; }
+
+/* Interactive 7-Link Competency Chain Bar */
+.chain-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 14px 0 18px; padding: 12px 14px; background: var(--subtle); border: 1px solid var(--border); border-radius: 10px; }
+.c-node { flex: 1; min-width: 92px; text-align: center; padding: 7px 6px; border-radius: 7px; font-size: 0.74rem; font-weight: 700; border: 1.5px solid var(--border); background: var(--bg); }
+.c-node.g { border-color: var(--emerald); background: var(--emerald-bg); color: var(--emerald); }
+.c-node.a { border-color: var(--gold); background: var(--gold-bg); color: var(--gold); }
+.c-node.r { border-color: var(--crimson); background: var(--crimson-bg); color: var(--crimson); }
+
+/* Monk Card */
+.monk-card { background: var(--gold-bg); border: 1.5px solid #f59e0b; border-radius: 14px; padding: 18px 22px; margin-bottom: 18px; display: flex; gap: 16px; align-items: flex-start; }
+.monk-avatar { width: 64px; height: 64px; border-radius: 50%; background: #0b2545; color: #fde68a; display: flex; align-items: center; justify-content: center; font-size: 1.55rem; flex-shrink: 0; border: 2.5px solid #d97706; overflow: hidden; box-shadow: 0 4px 12px rgba(217,119,6,0.28); }
+.monk-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; display: block; }
+.monk-body { flex: 1; }
+.monk-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 8px; }
+.monk-head span { font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.09em; color: #b45309; }
+[data-theme="dark"] .monk-head span { color: #fde68a; }
+.monk-play { background: #0b2545; color: #fde68a; border: none; border-radius: 999px; padding: 5px 13px; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+.monk-quote { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 600; font-size: 1.36rem; line-height: 1.48; }
+
+.max-bar { background: #0b2545; color: #fff; border-radius: 12px; padding: 14px 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.max-bar strong { font-family: var(--serif); font-size: 1.3rem; color: #fde68a; }
+
+.visual-banner { background: var(--sapphire-bg); border: 1.5px solid #bfdbfe; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; }
+.vb-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.76rem; font-weight: 800; text-transform: uppercase; color: var(--navy); }
+.vb-flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr; gap: 8px; align-items: center; }
+.vb-node { background: var(--bg); border: 2px solid var(--border); border-radius: 10px; padding: 10px 8px; text-align: center; }
+.vb-node.ok { border-color: var(--emerald); background: var(--emerald-bg); }
+.vb-node.warn { border-color: var(--gold); background: var(--gold-bg); }
+.vb-node.bad { border-color: var(--crimson); background: var(--crimson-bg); }
+.vb-lbl { font-size: 0.8rem; font-weight: 700; }
+.vb-stat { font-size: 0.94rem; font-weight: 800; margin-top: 2px; }
+.vb-arr { color: var(--sapphire); font-weight: 800; text-align: center; }
+
+.delta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 14px 0 18px; }
+.delta-box { background: var(--subtle); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
+.delta-box.pos { background: var(--emerald-bg); border-color: var(--emerald-border); }
+.delta-box.neg { background: var(--crimson-bg); border-color: var(--crimson-border); }
+.delta-box .dl { font-size: 0.76rem; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.delta-box .dv { font-family: var(--serif); font-size: 1.6rem; font-weight: 700; color: var(--navy); margin: 3px 0; }
+.pill-pos { display: inline-block; background: var(--emerald); color: #fff; font-size: 0.78rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
+.pill-neg { display: inline-block; background: var(--crimson); color: #fff; font-size: 0.78rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
+.pill-neu { display: inline-block; background: var(--muted); color: #fff; font-size: 0.78rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
+
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0 20px; }
+.chart-card { background: var(--subtle); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.chart-title { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; color: var(--navy); margin-bottom: 8px; display: flex; justify-content: space-between; }
+
+.logic-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 22px; }
+.logic-item { border-radius: 10px; padding: 13px 16px; border: 1.5px solid var(--border); display: flex; gap: 10px; align-items: flex-start; }
+.logic-item.good { background: var(--emerald-bg); border-color: var(--emerald-border); border-left: 5px solid var(--emerald); }
+.logic-item.bad { background: var(--crimson-bg); border-color: var(--crimson-border); border-left: 5px solid var(--crimson); }
+.imp-badge { font-size: 0.72rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; white-space: nowrap; margin-top: 2px; }
+.good .imp-badge { background: var(--emerald); color: #fff; }
+.bad .imp-badge { background: var(--crimson); color: #fff; }
+.logic-item strong { display: block; font-size: 1rem; color: var(--navy); margin-bottom: 2px; }
+.logic-item p { font-size: 0.94rem; }
+
+.hero-grid { display: grid; grid-template-columns: 1fr 250px; gap: 32px; align-items: center; }
+.hero-cover { width: 100%; border-radius: 10px; box-shadow: 0 12px 28px rgba(11,37,69,0.22); }
+.setup-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0 16px; }
+.setup-field { flex: 1; min-width: 190px; }
+.setup-field label { display: block; font-weight: 700; font-size: 0.84rem; color: var(--navy); margin-bottom: 4px; }
+.setup-field input, .setup-field select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border-strong); border-radius: 8px; font-size: 0.95rem; background: var(--bg); color: var(--text); }
+
+.debrief-cols { display: grid; grid-template-columns: 2.1fr 0.9fr; gap: 16px; margin: 20px 0; }
+.rights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+@media (max-width: 820px) { .rights-grid { grid-template-columns: 1fr; } }
+.debrief-col { background: var(--subtle); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.debrief-col.right-col { border-top: 5px solid var(--emerald); }
+.debrief-col.fix-col { border-top: 5px solid var(--crimson); }
+.debrief-col h3 { font-family: var(--serif); font-size: 1.25rem; color: var(--navy); margin-bottom: 12px; }
+.d-entry { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.94rem; }
+.d-entry:last-child { border-bottom: none; }
+.d-entry strong { display: block; color: var(--navy); }
+.ch-tag { display: inline-block; margin-top: 4px; font-size: 0.74rem; font-weight: 700; color: var(--sapphire); background: var(--sapphire-bg); padding: 2px 8px; border-radius: 4px; }
+
+.bench-bar { background: linear-gradient(135deg, #0b2545, #1d4ed8); color: #fff; border-radius: 12px; padding: 20px 24px; margin: 16px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.bench-bar strong { font-family: var(--serif); font-size: 1.55rem; color: #fde68a; }
+
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.btn-main { flex: 1; min-width: 180px; padding: 15px 22px; border: none; border-radius: 10px; background: linear-gradient(135deg, #0b2545, #1d4ed8); color: #fff; font-weight: 700; font-size: 1.02rem; cursor: pointer; }
+.btn-sec { padding: 14px 18px; border: 1.5px solid var(--border-strong); border-radius: 10px; background: var(--bg); color: var(--navy); font-weight: 700; font-size: 0.94rem; cursor: pointer; }
+
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+th, td { padding: 9px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+th { font-size: 0.74rem; text-transform: uppercase; color: var(--muted); background: var(--subtle); }
+
+/* Double-Size Trophy Modal + Confetti Canvas */
+.modal-overlay { position: fixed; inset: 0; background: rgba(11,37,69,0.78); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal-box { background: var(--bg); border-radius: 24px; max-width: 820px; width: 92%; padding: 44px 42px; text-align: center; box-shadow: 0 28px 70px rgba(0,0,0,0.4); border: 3px solid var(--gold-border); animation: popIn 0.3s ease; position: relative; z-index: 102; }
+.modal-box h2 { font-size: 2.25rem; margin: 8px 0; }
+.modal-score { display: inline-block; background: linear-gradient(135deg, #0b2545, #1d4ed8); color: #fde68a; font-family: var(--serif); font-size: 1.9rem; font-weight: 700; padding: 12px 28px; border-radius: 999px; margin: 14px 0 18px; }
+#confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 101; }
+.hidden { display: none !important; }
+
+/* Glossary Pills */
+.gloss-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.gloss-btn { background: var(--subtle); border: 1px solid var(--border-strong); color: var(--navy); padding: 6px 12px; border-radius: 999px; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
+.gloss-box { background: var(--gold-bg); border: 1px solid var(--gold-border); border-radius: 10px; padding: 12px 16px; margin-top: 8px; font-size: 0.94rem; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes popIn { from { opacity: 0; transform: scale(0.88); } to { opacity: 1; transform: scale(1); } }
+@media (min-width: 1024px) {
+  body { font-size: 16.5px; }
+  .screen { padding: 36px 44px; }
+  .lever-grid { grid-template-columns: repeat(3, 1fr); }
+  .brief-txt { font-size: 1.16rem; }
+  .monk-quote { font-size: 1.42rem; }
+}
+@media (max-width: 820px) {
+  body { font-size: 14.5px; }
+  .hero-grid, .whisper-grid, .charts-row, .debrief-cols, .logic-list, .vb-flow { grid-template-columns: 1fr; }
+  .kpis, .delta-grid { grid-template-columns: repeat(2, 1fr); }
+  .vb-arr { transform: rotate(90deg); }
+  .screen { padding: 20px 16px; }
+  .modal-box { padding: 26px 20px; }
+  .modal-box h2 { font-size: 1.6rem; }
+}
+@media print { .nav, .prog-wrap, .btn-row, .modal-overlay, .monk-play, .whispers { display: none !important; } body { background: #fff; } .screen { box-shadow: none; border: none; padding: 0; } }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas" class="hidden"></canvas>
+
+<header class="nav">
+  <div class="nav-in">
+    <div class="brand">
+      <img src="assets/emblem_circle.png" alt="Lion Emblem" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;background:#fff">
+      <div>
+        <strong>The KILL BUSYness Engine</strong>
+        <span>Management Innovations • 10-Week Executive Simulation</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <a href="https://www.KILLBUSYness.com" target="_blank" rel="noopener" title="Visit www.KILLBUSYness.com" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:rgba(255,255,255,0.1);padding:3px 8px 3px 4px;border-radius:7px;border:1px solid rgba(255,255,255,0.22)"><img src="assets/book-cover.jpg" alt="Kill BUSYness Book" style="height:30px;border-radius:3px;box-shadow:0 2px 6px rgba(0,0,0,0.3)"><span style="color:#fde68a;font-size:0.72rem;font-weight:700">Book ↗</span></a>
+      <img src="assets/mi-logo.jpeg" alt="MI Logo" style="height:30px;border-radius:5px;background:#fff;padding:2px 5px">
+      <button class="nav-btn" id="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
+      <button class="nav-btn" id="snd-btn" onclick="toggleSound()">🔊 Sound &amp; Monk: ON</button>
+      <div style="font-size:0.86rem;font-weight:700;color:#fde68a" id="wk-pill">Executive Briefing</div>
+    </div>
+  </div>
+</header>
+
+<div class="prog-wrap">
+  <div class="prog-in">
+    <div class="prog-meta">
+      <span id="prog-label">Simulation Progress: Ready to Begin</span>
+      <span id="prog-pct">0% Complete</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="kpis">
+    <div class="kpi"><div class="lbl">Follow-Up Load</div><div class="val" id="k-tax">25%</div><div class="sub">Capacity chasing</div></div>
+    <div class="kpi"><div class="lbl">Competency Chain</div><div class="val" id="k-qual">70%</div><div class="sub">End-to-end quality</div></div>
+    <div class="kpi"><div class="lbl">Revenue</div><div class="val" id="k-rev">₹0 Cr</div><div class="sub">Total sales billed</div></div>
+    <div class="kpi"><div class="lbl">Expenses</div><div class="val" id="k-exp">₹0 Cr</div><div class="sub">Fixed + Rework + Chase</div></div>
+    <div class="kpi"><div class="lbl">Net Profit</div><div class="val" id="k-prof">₹0 Cr</div><div class="sub" id="k-cash">Cash: ₹50 Cr</div></div>
+    <div class="kpi"><div class="lbl">Brand Credibility</div><div class="val" id="k-brand">70%</div><div class="sub" id="k-brand-sub">Stable</div></div>
+    <div class="kpi"><div class="lbl">CEO Whitespace</div><div class="val" id="k-ws">20%</div><div class="sub">Target: 50%+</div></div>
+  </div>
+
+  <section class="screen" id="stage"></section>
+</main>
+
+<div class="modal-overlay hidden" id="trophy-modal"><div class="modal-box" id="trophy-content"></div></div>
+
+<script>
+const STORAGE_KEY = "kbe_v6_ceolab_save";
+const SB_URL = "https://oictzdcrdqgwawezwjzr.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pY3R6ZGNyZHFnd2F3ZXp3anpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5OTc5MzQsImV4cCI6MjEwMTU3MzkzNH0._-QPa4TDifIriTJlcuP05w6eCPnXUjcFDQNcFEQ0kB8";
+async function pushRunToSupabase(note = "", rating = null) {
+  try {
+    if (!s.runId) s.runId = (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random()*16|0; return (c==='x'?r:(r&0x3|0x8)).toString(16); }));
+    if (s.runSaved && (note || rating)) {
+      await fetch(`${SB_URL}/rest/v1/rpc/update_run_feedback`, {
+        method: "POST",
+        headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ p_id: s.runId, p_note: note, p_rating: rating })
+      });
+      return;
+    }
+    if (s.runSaved) return;
+    const res = await fetch(`${SB_URL}/rest/v1/game_runs`, {
+      method: "POST",
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({
+        id: s.runId, ceo_name: s.ceoName || "Anonymous CEO", industry: s.industry, mode: s.mode,
+        team_code: (s.teamCode || "GLOBAL").toUpperCase(),
+        net_profit: s.profit, total_rev: s.totRev, total_exp: s.totExp,
+        follow_up: s.tax, quality: s.qual, credibility: s.brand, whitespace: s.ws,
+        monday_pact: "", feedback_note: note, feedback_rating: rating,
+        choices_json: s.choices || [], build_version: "V6.0-CEOLAB"
+      })
+    });
+    if (res.ok) s.runSaved = true;
+  } catch (e) {}
+}
+const RUNS_KEY = "kbe_v6_ceolab_runs";
+const GLOSSARY = {
+  "NFR (No Follow-Up Required)": "The ultimate operational standard (Ch 8): a commitment made is a commitment honoured—eliminating the Chase Machine across Leader (NFRL), Team (NFRT), Department (NFRD), Company (NFRC), and Ecosystem (NFRE).",
+  "The Competency Chain": "Not seven independent problems, but one causal chain (Ch 4): Recruitment → Training → Promotion → Sales → Delivery → Brand → Future. A chain fails everywhere downstream of its weakest link.",
+  "CEO's Representative": "Closing the Competency Chain (Ch 4.h): every manager and supervisor leads on the CEO's behalf, making enterprise-first decisions rather than defending department convenience.",
+  "Project Whitespace": "Phase 3 of the First 90 Days (Ch 9): reclaiming 50% of the leadership calendar from habitual busyness to protect deep strategic thinking.",
+  "Mount Neverest": "Institutionalizing recurring, untouchable leadership reflection days (Ch 5 & 10) so the organization never mistakes achievement for arrival.",
+  "The Three Silences": "Silence of the Soul (missing purpose), Silence of the Heart (compliance instead of care), and Silence of the Head (suppressed independent thinking) — Intro & Ch 1."
+};
+
+let s = {}, inp = {}, soundOn = true, audioCtx = null, ambGain = null, ambStarted = false, lastMonkText = "";
+
+function toggleTheme() {
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  document.getElementById("theme-btn").textContent = dark ? "🌙 Dark" : "☀️ Light";
+}
+function ensureAudio() {
+  if (!soundOn) return null;
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  if (!ambStarted) {
+    ambStarted = true; ambGain = audioCtx.createGain(); ambGain.gain.value = 0.022; ambGain.connect(audioCtx.destination);
+    [130.81, 196.00, 246.94, 293.66].forEach(f => { const o = audioCtx.createOscillator(); o.type = "sine"; o.frequency.value = f; o.connect(ambGain); o.start(); });
+  }
+  return audioCtx;
+}
+function toggleSound() {
+  soundOn = !soundOn;
+  document.getElementById("snd-btn").textContent = soundOn ? "🔊 Sound & Monk: ON" : "🔇 Sound & Monk: OFF";
+  if (ambGain && audioCtx) ambGain.gain.setTargetAtTime(soundOn ? 0.022 : 0, audioCtx.currentTime, 0.15);
+  if (!soundOn && window.speechSynthesis) window.speechSynthesis.cancel();
+}
+function playTone(freq, dur, type="sine", vol=0.08, delay=0) {
+  const ctx = ensureAudio(); if (!ctx) return;
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, ctx.currentTime + delay);
+  g.gain.exponentialRampToValueAtTime(vol, ctx.currentTime + delay + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(ctx.currentTime + delay); o.stop(ctx.currentTime + delay + dur + 0.02);
+}
+function sfxClick() { playTone(520, 0.06, "triangle", 0.06); }
+function sfxGood() { playTone(523.25, 0.16, "sine", 0.08, 0); playTone(659.25, 0.2, "sine", 0.08, 0.1); playTone(783.99, 0.28, "sine", 0.08, 0.2); }
+function sfxWarn() { playTone(260, 0.2, "triangle", 0.07, 0); playTone(215, 0.28, "triangle", 0.07, 0.14); }
+function sfxFanfare() { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => playTone(f, 0.45, "triangle", 0.09, i * 0.11)); }
+
+function speakMonk(text) {
+  lastMonkText = text;
+  if (!soundOn || !("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const voices = window.speechSynthesis.getVoices();
+  const brian = voices.find(v => /brian/i.test(v.name)) || voices.find(v => /daniel|george|ryan|uk english male/i.test(v.name)) || voices.find(v => /en-/i.test(v.lang));
+  if (brian) u.voice = brian;
+  u.rate = 0.90; u.pitch = 0.94; u.volume = 0.98;
+  window.speechSynthesis.speak(u);
+}
+if ("speechSynthesis" in window) window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+const CXO_CAST = {
+  "CFO":              { icon: "💰", img: "assets/cxo_cfo.jpg",        col: "#0b2545", pitch: 0.88, rate: 0.96 },
+  "Production Head":  { icon: "🏭", img: "assets/cxo_production.jpg", col: "#b45309", pitch: 0.84, rate: 0.95 },
+  "Sales Head":       { icon: "📈", img: "assets/cxo_sales.jpg",      col: "#1d4ed8", pitch: 1.05, rate: 1.02 },
+  "Marketing Head":   { icon: "📣", img: "assets/cxo_marketing.jpg",  col: "#7c3aed", pitch: 1.10, rate: 1.00 },
+  "Quality Head":     { icon: "✅", img: "assets/cxo_quality.jpg",    col: "#059669", pitch: 0.96, rate: 0.94 },
+  "R&D Head":         { icon: "🔬", img: "assets/cxo_rd.jpg",         col: "#0f766e", pitch: 0.92, rate: 0.95 },
+  "HR Head":          { icon: "👥", img: "assets/cxo_hr.jpg",         col: "#be123c", pitch: 1.12, rate: 0.98 },
+  "Supply Chain Head":{ icon: "🚚", img: "assets/cxo_supply.jpg",     col: "#475569", pitch: 0.86, rate: 0.96 },
+  "Board Chair":      { icon: "🏛️", img: "assets/cxo_board.jpg",      col: "#92400e", pitch: 0.82, rate: 0.90 }
+};
+
+function getCXO(role) {
+  for (const k of Object.keys(CXO_CAST)) {
+    if (role.toLowerCase().includes(k.toLowerCase().split(" ")[0])) return { name: role, ...CXO_CAST[k] };
+  }
+  return { name: role, icon: "💼", img: "assets/cxo_cfo.jpg", col: "#1d4ed8", pitch: 1.0, rate: 0.98 };
+}
+
+function speakCXO(role, text) {
+  if (!soundOn || !("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const c = getCXO(role);
+  const clean = text.replace(/[“”"]/g, "");
+  const u = new SpeechSynthesisUtterance(`${role} says: ${clean}`);
+  u.pitch = c.pitch; u.rate = c.rate; u.volume = 0.95;
+  window.speechSynthesis.speak(u);
+}
+
+function speakAllCXOs() {
+  if (!soundOn || !("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const W = WEEKS[s.wk - 1];
+  W.whispers.forEach(w => {
+    const c = getCXO(w.who);
+    const u = new SpeechSynthesisUtterance(`${w.who} says: ${w.txt.replace(/[“”"]/g, "")}`);
+    u.pitch = c.pitch; u.rate = c.rate; u.volume = 0.95;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+
+function fireConfetti() {
+  const c = document.getElementById("confetti-canvas");
+  c.classList.remove("hidden");
+  c.width = window.innerWidth; c.height = window.innerHeight;
+  const ctx = c.getContext("2d");
+  const pieces = Array.from({ length: 90 }, () => ({
+    x: Math.random() * c.width, y: Math.random() * -c.height * 0.5,
+    r: 4 + Math.random() * 6, vy: 2 + Math.random() * 4, vx: (Math.random() - 0.5) * 3,
+    col: ["#f59e0b", "#1d4ed8", "#059669", "#fde68a", "#0b2545"][Math.floor(Math.random() * 5)]
+  }));
+  let frames = 0;
+  function draw() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    pieces.forEach(p => { p.x += p.vx; p.y += p.vy; ctx.fillStyle = p.col; ctx.fillRect(p.x, p.y, p.r, p.r * 1.4); });
+    if (++frames < 140) requestAnimationFrame(draw); else c.classList.add("hidden");
+  }
+  draw();
+}
+
+const WEEKS = [
+  {
+    wk: 1, focus: "Week 1 Kickoff", kicker: "Week 1 of 10 • Q1 Kickoff & Rising Demand",
+    title: "Strong Demand, Tight Deadlines",
+    lead: "<p>You are the CEO. We are at the start of Week 1.</p><p>Market demand is healthy. Some internal friction is there as in most companies.</p><p>Your Operations Head reports spending half her week chasing overdue handoffs and wants to hire coordinators immediately.</p><p>Meanwhile, a flagship project kicks off soon without a Lead Engineer, weekly meetings end without named owners, and VPs are watching how you personally model standards.</p><p>Decide how you will set the operating tone from Day 1.</p>",
+    whispers: [
+      { who: "Production Head", txt: "“Give me 2 coordinators for the next 8 weeks so deliveries do not slip while we catch up.”" },
+      { who: "Sales Head", txt: "“Demand is strong—take every order we can get so Q1 starts ahead of target.”" },
+      { who: "Quality Head", txt: "“I am concerned about rushing this Lead Engineer hire—cutting corners on selection rarely ends well.”" }
+    ],
+    levers: [
+      { id: "orders", type: "slider", label: "1. Weekly Order Intake", desc: "Orders accepted this week.", min: 2, max: 10, val: 7, unit: " Orders" },
+      { id: "coords", type: "opt", label: "2. Follow-Up Support", desc: "Operations asks for coordinators to track overdue handoffs.", opts: [
+        { v: "no", t: "Decline coordinators — implement No Follow Up Required (NFR) Culture", dTax: -7, ok: true, ch: "Ch 1 & 8 (NFR)", recT: "Eliminated Accountability Tax", recI: "Cut Follow-Up (-7%) and established direct ownership." },
+        { v: "one", t: "Approve 1 temporary coordinator for 30 days", dTax: 3, ok: false, ch: "Ch 1 (Chase Machine)", recT: "Hired 1 Temporary Coordinator", recI: "Still signalled that chasing is acceptable (+3% Follow-Up)." },
+        { v: "yes", t: "Approve 2 full-time coordinators for daily tracking", dTax: 10, ok: false, ch: "Ch 1 (Chase Machine)", recT: "Hired 2 Coordinators", recI: "Expanded the Chase Machine (+10% Follow-Up)." }
+      ]},
+      { id: "hire", type: "opt", label: "3. Urgent Engineering Hire", desc: "A key project needs a Lead Engineer before kickoff.", opts: [
+        { v: "fast", t: "Hire the available candidate to start Monday", lagWk: 3, lagQual: -12, lagBrand: -5, chainIdx: 0, ok: false, ch: "Ch 4.a (Recruitment)", recT: "Hired Available Fast (W1)", recI: "Triggered a 2-week delayed quality drop (-12%) in W3." },
+        { v: "contract", t: "Bring in a short-term contractor to bridge the gap", lagWk: 3, lagQual: -4, chainIdx: 0, ok: false, ch: "Ch 4.a (Recruitment)", recT: "Used Short-Term Contractor (W1)", recI: "Created handoff friction in W3 (-4% Quality)." },
+        { v: "rigor", t: "Follow rigorous selection process despite delay", invCost: 2, lagWk: 3, lagQual: 10, chainIdx: 0, ok: true, ch: "Ch 4.a (Recruitment)", recT: "Followed Rigorous Selection Process", recI: "Compounded into +10% delivery quality in W3." }
+      ]},
+      { id: "meet", type: "opt", label: "4. Executive Meeting Design", desc: "Weekly meetings currently run long with no clear owners.", opts: [
+        { v: "vis", t: "Keep full status updates for complete visibility", dWs: -6, ok: false, ch: "Ch 1 (Meetings)" },
+        { v: "short", t: "Shorten status meetings to 45 minutes", dWs: -2, ok: false, ch: "Ch 1 (Meetings)" },
+        { v: "dec", t: "Convert to decision-only meetings with named owners", dWs: 6, dTax: -4, ok: true, ch: "Ch 1 (Decision Meetings)" }
+      ]},
+      { id: "mirror", type: "opt", label: "5. Rolling Out Standards", desc: "How do you introduce higher reliability to your VPs?", opts: [
+        { v: "memo", t: "Issue a formal company-wide policy memo", dBrand: -2, lagWk: 2, lagQual: -2, ok: false, ch: "Ch 8 (CEO Mirror)" },
+        { v: "hr", t: "Ask HR to run a reliability workshop for managers", dBrand: 1, ok: false, ch: "Ch 8 (CEO Mirror)" },
+        { v: "model", t: "Model every commitment personally before asking others", dBrand: 4, ok: true, ch: "Ch 8 (CEO Mirror)" }
+      ]}
+    ],
+    monkGood: "When the leader models reliability before writing a single memo, the organization learns faster from your conduct than from your commands.",
+    monkBad: "When you hire chasers to guard broken promises and rush entry to please the clock, you do not cure the leak—you build a monument to it."
+  },
+  {
+    wk: 2, focus: "Purpose & Friction", kicker: "Week 2 of 10 • Growth Friction & Purpose",
+    title: "New Hires, Purpose Gap & A Tempting Bid",
+    lead: "<p>Week 2 brings normal growth friction.</p><p>New hires are joining the floor, and Operations wants them productive quickly rather than spending weeks in formal coaching.</p><p>Your company purpose looks inspiring on the wall, yet two levels down it has evaporated into dry KPI checklists.</p><p>At the same time, Sales brings in a large custom order outside your standard capability—margins are thin, though top-line volume is attractive.</p><p>Make your calls for Week 2.</p>",
+    whispers: [
+      { who: "Sales Head", txt: "“This custom bid keeps our top-line ahead—let us sign it and figure out delivery later.”" },
+      { who: "CFO", txt: "“Full cost accounting shows that low-margin custom order will actually bleed cash and overload the plant.”" },
+      { who: "HR Head", txt: "“1-day orientation gets new hires onto billable work immediately.”" }
+    ],
+    levers: [
+      { id: "orders", type: "slider", label: "1. Weekly Order Intake", desc: "Orders accepted this week.", min: 3, max: 10, val: 6, unit: " Orders" },
+      { id: "train", type: "opt", label: "2. New-Hire Onboarding", desc: "How are new hires integrated into the team?", opts: [
+        { v: "short", t: "1-day orientation and learn on the job", dQual: -6, lagWk: 4, lagQual: -6, lagBrand: -2, chainIdx: 1, ok: false, ch: "Ch 4.b (Training)", recT: "1-Day Orientation Only", recI: "New hires copied shortcuts (-6% now, -6% in W4)." },
+        { v: "buddy", t: "Pair with a senior colleague for 3 days", dQual: -1, lagWk: 4, lagQual: -2, chainIdx: 1, ok: false, ch: "Ch 4.b (Training)" },
+        { v: "rigor", t: "Structured multi-week training and onboarding", invCost: 2.5, dQual: 7, lagWk: 4, lagQual: 5, chainIdx: 1, ok: true, ch: "Ch 4.b (Training)", recT: "Structured Onboarding Coaching", recI: "Lifted capability (+7% now, +5% in W4)." }
+      ]},
+      { id: "bid", type: "opt", label: "3. Low-Margin Custom Bid", desc: "A large order outside your standard capability.", opts: [
+        { v: "sign", t: "Accept the order to boost top-line revenue", dBrand: -8, lagWk: 4, lagBrand: -6, lagTax: 5, chainIdx: 3, ok: false, ch: "Ch 4.d (Sales)", recT: "Signed Wrong-Fit Custom Bid", recI: "Strained delivery (-8% Brand now, -6% in W4)." },
+        { v: "half", t: "Take a smaller trial batch to test the client", dBrand: -3, dTax: 3, chainIdx: 3, ok: false, ch: "Ch 4.d (Sales)" },
+        { v: "pass", t: "Decline cleanly and focus on right-fit accounts", dBrand: 2, chainIdx: 3, ok: true, ch: "Ch 4.d (Sales)", recT: "Declined Wrong-Fit Bid", recI: "Protected margins and lifted Brand Credibility (+2%)." }
+      ]},
+      { id: "purpGap", type: "opt", label: "4. The Purpose Transmission Gap", desc: "Purpose is evaporating into dry KPIs on the floor.", opts: [
+        { v: "kpi", t: "Keep focus strictly on quarterly KPI targets", dBrand: -3, ok: false, ch: "Ch 2 (Purpose)" },
+        { v: "poster", t: "Refresh office posters and quarterly newsletters", dBrand: -1, ok: false, ch: "Ch 2 (Purpose)" },
+        { v: "trans", t: "Have managers translate the 'Why' into daily work", dBrand: 2, dQual: 3, ok: true, ch: "Ch 2 (Purpose)" }
+      ]},
+      { id: "dash", type: "opt", label: "5. Performance Reporting", desc: "Every VP wants their own custom KPI dashboard.", opts: [
+        { v: "many", t: "Build a separate dashboard for each department", dTax: 5, ok: false, ch: "Ch 6 (Silos)" },
+        { v: "both", t: "Allow local dashboards plus a weekly summary", dTax: 2, ok: false, ch: "Ch 6 (Silos)" },
+        { v: "one", t: "Maintain one shared company-wide truth board", dTax: -4, ok: true, ch: "Ch 6 (Alignment)" }
+      ]}
+    ],
+    monkGood: "Not every order is business; some are merely noise wearing the mask of revenue. When managers translate purpose daily, work becomes a temple rather than a brickyard.",
+    monkBad: "A river that flows into every ditch loses the force to reach the ocean. When purpose evaporates into dry checklists, effort rises while meaning fades."
+  },
+  {
+    wk: 3, focus: "Strategy & Promo", kicker: "Week 3 of 10 • Strategy & Portfolio Focus",
+    title: "Strategic Choices & A Key Promotion",
+    lead: "<p>You are now in the early phase of the 10-week cycle.</p><p>Your teams are currently supporting five business lines and pursuing multiple customer segments at once.</p><p>A senior Plant Manager role has opened up, and your strongest technical engineer expects the promotion based on tenure.</p><p>Meanwhile, marketing is asking for 20% of leadership bandwidth for a visible brand refresh.</p>",
+    whispers: [
+      { who: "Marketing Head", txt: "“A fresh logo and deck will impress clients right now—give us 20% of team bandwidth.”" },
+      { who: "Production Head", txt: "“Promote our senior engineer; he knows the machines better than anyone.”" },
+      { who: "HR Head", txt: "“Domain mastery is not people leadership—let us promote strictly on leadership readiness.”" }
+    ],
+    levers: [
+      { id: "orders", type: "slider", label: "1. Weekly Order Intake", desc: "Orders accepted this week.", min: 3, max: 10, val: 6, unit: " Orders" },
+      { id: "lines", type: "opt", label: "2. Portfolio Focus", desc: "How many business lines will your team support?", opts: [
+        { v: "all", t: "Keep all 5 lines active to protect revenue", dTax: 6, ok: false, ch: "Ch 3 (Strategy)", recT: "Kept All 5 Business Lines", recI: "Diluted focus (+6% Follow-Up drag)." },
+        { v: "cut1", t: "Pause 1 minor line while keeping 4 running", dWs: 3, dTax: -1, ok: false, ch: "Ch 3 (Strategy)" },
+        { v: "focus", t: "Exit 2 low-margin lines and double down on core", dWs: 10, dTax: -6, ok: true, ch: "Ch 3 (Saying NO)", recT: "Exercised Discipline of Saying 'NO'", recI: "Freed Whitespace (+10%) and cut Follow-Up (-6%)." }
+      ]},
+      { id: "promo", type: "opt", label: "3. Plant Manager Promotion", desc: "How do you select the new Plant Manager?", opts: [
+        { v: "tenure", t: "Promote top technical performer based on tenure", dTax: 5, dQual: -4, lagWk: 5, lagQual: -5, chainIdx: 2, ok: false, ch: "Ch 4.c (Promotion)", recT: "Promoted on Technical Skill Alone", recI: "Triggered Peter Principle bottlenecks in W3 & W5." },
+        { v: "acting", t: "Make them Acting Manager for 60 days to see", dTax: 2, lagWk: 5, lagQual: -2, chainIdx: 2, ok: false, ch: "Ch 4.c (Promotion)" },
+        { v: "ready", t: "Promote strictly on demonstrated leadership readiness", dTax: -5, dQual: 4, lagWk: 5, lagQual: 5, chainIdx: 2, ok: true, ch: "Ch 4.c (Promotion)", recT: "Promoted on Leadership Readiness", recI: "Strengthened plant leadership in W3 & W5." }
+      ]},
+      { id: "strat", type: "opt", label: "4. Market Positioning", desc: "Sales wants to chase 4 unrelated customer segments.", opts: [
+        { v: "wide", t: "Serve every segment that is willing to pay", dTax: 4, ok: false, ch: "Ch 3 (Strategy)" },
+        { v: "three", t: "Keep 3 broad segments to hedge market risk", dTax: 1, ok: false, ch: "Ch 3 (Strategy)" },
+        { v: "choice", t: "Commit to a clear 'Where to Play & How to Win'", dTax: -4, dBrand: 5, ok: true, ch: "Ch 3 (Strategy)" }
+      ]},
+      { id: "filter", type: "opt", label: "5. Brand Refresh Request", desc: "Marketing requests 20% bandwidth for a visual refresh.", opts: [
+        { v: "run", t: "Approve now for immediate market visibility", dWs: -5, ok: false, ch: "Ch 2 (Purpose Filter)" },
+        { v: "ext", t: "Outsource to an agency with weekly CEO reviews", dWs: -2, ok: false, ch: "Ch 2 (Purpose Filter)" },
+        { v: "defer", t: "Defer until core delivery and strategy are rock-solid", dWs: 5, ok: true, ch: "Ch 2 (Purpose Filter)" }
+      ]}
+    ],
+    monkGood: "Strategy is not what you say yes to—it is what you have the courage to refuse. Pruning distractions lets your core strengths compound.",
+    monkBad: "You tried to carry five stones in two hands and elevated a craftsman without teaching him to guide others. What feels generous today becomes weight tomorrow."
+  },
+  {
+    wk: 4, focus: "Ownership & Chain", kicker: "Week 4 of 10 • First Client Escalation",
+    title: "Defects, Silos & Culture Before Structure",
+    lead: "<p>A key client has escalated a quality defect on a recent shipment.</p><p>In your office, Sales points to rigid plant schedules, while Operations points to tight delivery promises.</p><p>A consultant suggests immediately redrawing the org chart to fix the friction, even though departmental trust and ownership are still low.</p><p>Decide how you will handle the escalation and your team.</p>",
+    whispers: [
+      { who: "Sales Head", txt: "“Patch this shipment fast so the client calms down by Friday.”" },
+      { who: "Quality Head", txt: "“Patching hides the defect. If we stop and fix the root cause now, our rework cost drops to zero.”" },
+      { who: "Production Head", txt: "“Redraw the org chart and tell Sales to stop promising impossible dates.”" }
+    ],
+    levers: [
+      { id: "orders", type: "slider", label: "1. Weekly Order Intake", desc: "Orders accepted this week.", min: 3, max: 10, val: 6, unit: " Orders" },
+      { id: "rework", type: "opt", label: "2. Handling the Defect", desc: "How should Operations respond to the client issue?", opts: [
+        { v: "patch", t: "Quick-patch and expedite replacement immediately", dQual: -5, dBrand: -5, chainIdx: 4, ok: false, ch: "Ch 4.e (Delivery)", recT: "Quick-Patched Delivery Defects", recI: "Left root causes broken (-5% Quality, -5% Brand)." },
+        { v: "inspect", t: "Add an extra final inspection layer for now", dTax: 4, dQual: 1, chainIdx: 4, ok: false, ch: "Ch 4.e (Delivery)" },
+        { v: "root", t: "Stop and eliminate the root process cause", invCost: 2.5, dQual: 7, dBrand: 5, chainIdx: 4, ok: true, ch: "Ch 4.e (Delivery)", recT: "Fixed Root Process Causes", recI: "Lifted Quality (+7%) and Brand (+5%)." }
+      ]},
+      { id: "role", type: "opt", label: "3. Sales vs. Operations Clash", desc: "How do you resolve the blame game in your office?", opts: [
+        { v: "arb", t: "Step in and arbitrate the dispute yourself", dTax: 6, ok: false, ch: "Ch 6 (Silos)", recT: "Arbitrated Silo Disputes Yourself", recI: "Kept escalations flowing to your desk (+6% Follow-Up)." },
+        { v: "comm", t: "Form a weekly joint Sales–Ops committee", dTax: 3, dWs: -3, ok: false, ch: "Ch 6 (Silos)" },
+        { v: "rep", t: "Align both managers as the CEO's representatives", dTax: -8, ok: true, ch: "Ch 4.h (CEO's Rep)", recT: "Aligned Managers as CEO's Representatives", recI: "Closed the Competency Chain (-8% Follow-Up)." }
+      ]},
+      { id: "cult", type: "opt", label: "4. Org Chart Restructuring", desc: "Consultant recommends redrawing reporting lines now.", opts: [
+        { v: "reorg", t: "Restructure reporting lines immediately", dTax: 4, ok: false, ch: "Ch 6 (Culture First)" },
+        { v: "pilot", t: "Restructure Operations only as a pilot", dTax: 2, ok: false, ch: "Ch 6 (Culture First)" },
+        { v: "cult", t: "Build cultural ownership and trust before restructuring", dQual: 5, dTax: -4, ok: true, ch: "Ch 6 (Culture First)" }
+      ]},
+      { id: "promise", type: "opt", label: "5. Client Replacement Date", desc: "What delivery date do you commit to the client?", opts: [
+        { v: "fast", t: "Promise an aggressive date and renegotiate if needed", dBrand: -6, chainIdx: 5, ok: false, ch: "Ch 4.f (Brand)" },
+        { v: "vague", t: "Give a tentative window subject to plant load", dBrand: -2, chainIdx: 5, ok: false, ch: "Ch 4.f (Brand)" },
+        { v: "honest", t: "Commit to a realistic date and honour it 100%", dBrand: 6, chainIdx: 5, ok: true, ch: "Ch 4.f (Brand)" }
+      ]}
+    ],
+    monkGood: "Structure without ownership is merely rearranging furniture in a leaking house. When managers walk as the CEO's representatives, silos dissolve from within.",
+    monkBad: "When leaders defend their own rooms while the house leaks, the client must manage you. Restructuring without trust only creates faster blame."
+  },
+  {
+    wk: 5, focus: "Whitespace & Listening", kicker: "Week 5 of 10 • Reflection & The Three Silences",
+    title: "Packed Calendars, Red Tape & Deep Listening",
+    lead: "<p>Your calendar is running at 65 hours a week with recurring internal reviews and approvals.</p><p>Even routine operational purchases currently require six signatures for control.</p><p>In meetings, leaders listen only to confirm what they already believe, and a mid-level manager quietly admits that teams have stopped bringing forward new ideas.</p><p>Decide how you will reclaim space and break the silence this week.</p>",
+    whispers: [
+      { who: "CFO", txt: "“Six signatures protect us from leakages—do not touch financial controls.”" },
+      { who: "R&D Head", txt: "“If we reclaim 50% of our calendar and listen deeply to front-line teams, we will unlock real breakthroughs.”" },
+      { who: "HR Head", txt: "“A lively townhall speech and suggestion box will lift morale quickly.”" }
+    ],
+    levers: [
+      { id: "orders", type: "slider", label: "1. Weekly Order Intake", desc: "Orders accepted this week.", min: 3, max: 10, val: 6, unit: " Orders" },
+      { id: "calCut", type: "opt", label: "2. Executive Calendar", desc: "Recurring internal meetings fill 65 hours/week.", opts: [
+        { v: "keep", t: "Keep calendar intact to stay visible to teams", dWs: -6, lagWk: 8, lagBrand: -8, ok: false, ch: "Ch 9 (Phase 3)", recT: "Kept Packed Calendar", recI: "Missed early market shift in W8 (-8% Brand)." },
+        { v: "cut20", t: "Trim 20% of low-priority meetings", dWs: 5, ok: false, ch: "Ch 9 (Phase 3)" },
+        { v: "cut50", t: "Reclaim 50% of calendar for deep strategic thinking", dWs: 20, lagWk: 8, lagBrand: 6, ok: true, ch: "Ch 9 (Project Whitespace)", recT: "Executed Project Whitespace (-50%)", recI: "Reclaimed +20% Whitespace and spotted W8 rival early." }
+      ]},
+      { id: "listen", type: "opt", label: "3. Leadership Dialogue Style", desc: "How do you conduct your next leadership dialogue?", opts: [
+        { v: "down", t: "Share your views and issue clear directives", dQual: -4, ok: false, ch: "Ch 5 (Listening)" },
+        { v: "qa", t: "Present your plan and take 10 minutes of Q&A", dQual: -1, ok: false, ch: "Ch 5 (Listening)" },
+        { v: "gen", t: "Practice empathic and generative listening", dQual: 7, dBrand: 4, ok: true, ch: "Ch 5 (4 Levels of Listening)" }
+      ]},
+      { id: "silences", type: "opt", label: "4. Quiet Middle Managers", desc: "Teams are polite in meetings but withholding ideas.", opts: [
+        { v: "top", t: "Host a motivational all-hands townhall", dQual: -4, ok: false, ch: "Intro (3 Silences)" },
+        { v: "box", t: "Launch an anonymous online suggestion box", dQual: -1, ok: false, ch: "Intro (3 Silences)" },
+        { v: "sense", t: "Run a sensing journey and sponsor team prototypes", dQual: 6, ok: true, ch: "Ch 9 (Sensing Journey)" }
+      ]},
+      { id: "rules", type: "opt", label: "5. Six-Signature Approvals", desc: "Legacy internal approval chains slow execution.", opts: [
+        { v: "keep", t: "Keep all 6 signatures for financial safety", dTax: 5, ok: false, ch: "Intro (Extractive)" },
+        { v: "three", t: "Reduce from 6 signatures down to 3", dTax: -1, ok: false, ch: "Intro (Extractive)" },
+        { v: "retire", t: "Retire legacy approvals and empower front-line owners", dTax: -6, ok: true, ch: "Intro (Source vs Resource)" }
+      ]}
+    ],
+    monkGood: "Empty space in the cup is what makes the cup useful. When you stop downloading old answers and listen with an open mind, the future speaks through your people.",
+    monkBad: "A mind packed from dawn to midnight cannot hear what is emerging. Where six signatures guard small tasks, silence quietly replaces care."
+  },
+  {
+    wk: 6, focus: "Assumptions & Black Swan", kicker: "Week 6 of 10 • Mid-Point Audit + Unexpected Curveball",
+    title: "Challenging Assumptions & A Sudden Supplier Shock",
+    lead: "<p>You have reached the halfway mark—and an unexpected Black Swan hits: a Tier-1 supplier just suffered a sudden outage, threatening 20% of deliveries.</p><p>Meanwhile, your core market assumptions have not been audited in five years, and the Board is reviewing executive scorecards.</p><p>Set your direction for the second half while absorbing the supplier shock.</p>",
+    whispers: [
+      { who: "Board Chair", txt: "“Tighter departmental SLAs will keep VPs accountable during this supplier outage.”" },
+      { who: "Supply Chain Head", txt: "“Instead of penalizing our Tier-1 supplier, let us co-solve this outage as ecosystem partners.”" },
+      { who: "CFO", txt: "“Postpone your protected reflection days until the supplier issue clears.”" }
+    ],
+    levers: [
+      { id: "orders", type: "slider", label: "1. Weekly Order Intake", desc: "Orders accepted this week.", min: 3, max: 10, val: 6, unit: " Orders" },
+      { id: "audit", type: "opt", label: "2. Market Assumptions", desc: "Your core market assumptions are 5 years old.", opts: [
+        { v: "skip", t: "Leverage our proven historical playbook to maintain operational stability", dBrand: -4, ok: false, ch: "Ch 5 (Assumptions)" },
+        { v: "desk", t: "Ask Strategy to circulate a quick market report", dBrand: 1, ok: false, ch: "Ch 5 (Assumptions)" },
+        { v: "audit", t: "Conduct a deep assumptions audit with the core team", dBrand: 6, dWs: 6, ok: true, ch: "Ch 5 (Assumptions Audit)" }
+      ]},
+      { id: "reflect", type: "opt", label: "3. Monthly Reflection Cadence", desc: "Protected off-site strategic reflection.", opts: [
+        { v: "zero", t: "Keep full executive calendar flexibility and review strategy organically", dWs: -4, ok: false, ch: "Ch 5 (Mount Neverest)" },
+        { v: "half", t: "Block one 2-hour slot when calendar allows", dWs: 3, ok: false, ch: "Ch 5 (Mount Neverest)" },
+        { v: "two", t: "Protect 2 untouchable reflection days each cycle", dWs: 14, ok: true, ch: "Ch 5 (Mount Neverest)" }
+      ]},
+      { id: "kpi", type: "opt", label: "4. Executive Scorecards", desc: "How are VPs evaluated in the second half?", opts: [
+        { v: "dept", t: "Enforce tighter departmental SLAs", dTax: 5, ok: false, ch: "Ch 6 (Silos)" },
+        { v: "mix", t: "70% departmental KPIs, 30% company bonus", dTax: 1, ok: false, ch: "Ch 6 (Silos)" },
+        { v: "shared", t: "Align all VPs on shared enterprise customer outcomes", dTax: -7, ok: true, ch: "Ch 6 (Shared Ownership)" }
+      ]},
+      { id: "eco", type: "opt", label: "5. Supplier Outage Response", desc: "How do you handle the Tier-1 supplier shock?", opts: [
+        { v: "ego", t: "Enforce penalty clauses and demand compliance", dQual: -4, ok: false, ch: "Ch 8 (Ego vs Eco)" },
+        { v: "swap", t: "Switch hastily to an unverified backup vendor", dQual: -2, dTax: 3, ok: false, ch: "Ch 7 (Ecosystem)" },
+        { v: "eco", t: "Co-solve with the supplier as an ecosystem partner", dQual: 5, dBrand: 4, ok: true, ch: "Ch 7 & 8 (Eco-Centric)" }
+      ]}
+    ],
+    monkGood: "Two days of stillness each month save two hundred days of wandering. Treating partners as an ecosystem turns even a sudden shock into deeper trust.",
+    monkBad: "If you are married to your department, you are divorced from the company. Yesterday's assumptions are the quietest path to tomorrow's obsolescence."
+  },
+  {
+    wk: 7, focus: "Leadership Creates", kicker: "Week 7 of 10 • Creating Version 2.0 Reality",
+    title: "Scaling NFR & Disrupting Your Own Model",
+    lead: "<p>Your senior team is more aligned now, though consistency still varies two levels down at the supervisor layer.</p><p>You also see an opportunity to proactively redesign your own legacy service model before any competitor forces your hand.</p><p>Several functions still operate at industry-average norms rather than world-class standards.</p><p>Decide how you will scale reliability and create your Version 2.0 future.</p>",
+    whispers: [
+      { who: "CFO", txt: "“Why disrupt our own cash-cow model when it is still profitable?”" },
+      { who: "R&D Head", txt: "“If we proactively pilot our Version 2.0 offering now, no competitor can ambush us later.”" },
+      { who: "Sales Head", txt: "“Industry-average standards are good enough for most clients.”" }
+    ],
+    levers: [
+      { id: "orders", type: "slider", label: "1. Weekly Order Intake", desc: "Orders accepted this week.", min: 3, max: 10, val: 7, unit: " Orders" },
+      { id: "cert", type: "opt", label: "2. Scaling Reliability", desc: "How do you extend zero-follow-up two levels down?", opts: [
+        { v: "inf", t: "Reinforce accountability standards personally during leadership reviews", dTax: 5, ok: false, ch: "Ch 6 & 8 (NFR)" },
+        { v: "audit", t: "Run quarterly spot-checks from the CEO's office", dTax: 2, ok: false, ch: "Ch 6 & 8 (NFR)" },
+        { v: "nfr", t: "Institute recurring leadership NFR certification", dTax: -8, ok: true, ch: "Ch 6 & 8 (NFR Scaling)" }
+      ]},
+      { id: "disrupt", type: "opt", label: "3. Legacy Service Model", desc: "Redesign your own legacy model before rivals do?", opts: [
+        { v: "wait", t: "Double down on optimizing our profitable core model before pivoting", dBrand: -4, lagWk: 9, lagBrand: -8, ok: false, ch: "Ch 7 (Paradigm Disruption)" },
+        { v: "study", t: "Form a committee to study future trends next year", dBrand: -1, lagWk: 9, lagBrand: -3, ok: false, ch: "Ch 7 (Paradigm Disruption)" },
+        { v: "v2", t: "Proactively build and pilot a Version 2.0 offering", invCost: 3, dBrand: 7, dQual: 5, lagWk: 9, lagBrand: 10, ok: true, ch: "Ch 7 (Leadership Creates)", recT: "Preemptive Version 2.0 Creation", recI: "Buffered you strongly against W9's market shock." }
+      ]},
+      { id: "dev", type: "opt", label: "4. Next-Tier Leadership", desc: "Building capability across every level.", opts: [
+        { v: "hero", t: "Rely on senior heroes to carry critical loads", dQual: -4, ok: false, ch: "Ch 7 (Leaders)" },
+        { v: "ext", t: "Sponsor an intensive executive leadership seminar for all supervisors", dQual: 1, ok: false, ch: "Ch 7 (KASH)" },
+        { v: "kash", t: "Build Leaders at every level", dQual: 6, ok: true, ch: "Ch 7 (KASH)" }
+      ]},
+      { id: "std", type: "opt", label: "5. Functional Benchmarks", desc: "Setting standards across functions.", opts: [
+        { v: "ge", t: "Stay comfortable with industry-average norms", dBrand: -3, ok: false, ch: "Ch 8 (Non-Negotiables)" },
+        { v: "sales", t: "Focus operational upgrades on Sales first to accelerate near-term revenue", dBrand: 1, ok: false, ch: "Ch 8 (Non-Negotiables)" },
+        { v: "wc", t: "Assert world-class best practices in every function", dBrand: 5, ok: true, ch: "Ch 8 (4 Non-Negotiables)" }
+      ]}
+    ],
+    monkGood: "Managers administer yesterday; leaders invent tomorrow. Disrupting your own comfort before the market forces you is the rarest courage in business.",
+    monkBad: "Heroism at the top hides fragility below. Optimizing yesterday's playbook only makes you faster on the road to irrelevance."
+  },
+  {
+    wk: 8, focus: "Cultural Attrition", kicker: "Week 8 of 10 • Rival Signals & Cultural Test",
+    title: "Market Rumours & A Brilliant Solo-Player",
+    lead: "<p>Market intelligence indicates a lean, well-funded competitor is preparing to launch in your core segment next week.</p><p>At the exact same moment, your highest-billing solo-performing VP openly refuses collaborative alignment, creating friction across two teams.</p><p>Several VPs suggest cancelling your reflection block for a war room and discounting early.</p><p>Decide how you will protect culture and prepare this week.</p>",
+    whispers: [
+      { who: "Sales Head", txt: "“We cannot lose our top biller right before a competitor launches—look the other way!”" },
+      { who: "Board Chair", txt: "“Cancel reflection days—we need an all-hands war room immediately.”" },
+      { who: "HR Head", txt: "“Two strong managers will resign if we keep tolerating solo-player behaviour.”" }
+    ],
+    levers: [
+      { id: "orders", type: "slider", label: "1. Weekly Order Intake", desc: "Orders accepted this week.", min: 3, max: 10, val: 7, unit: " Orders" },
+      { id: "attrit", type: "opt", label: "2. The Brilliant Solo-Player", desc: "Top biller refuses collaborative alignment.", opts: [
+        { v: "keep", t: "Tolerate behaviour to protect short-term numbers", dTax: 6, dQual: -5, ok: false, ch: "Ch 10 (Cultural Attrition)", recT: "Tolerated Toxic Solo-Player", recI: "Undermined team trust (+6% Follow-Up, -5% Quality)." },
+        { v: "warn", t: "Give a quiet private warning and revisit next quarter", dTax: 3, dQual: -2, ok: false, ch: "Ch 10 (Cultural Attrition)" },
+        { v: "letgo", t: "Hold the standard — transition them out cleanly", dTax: -5, dQual: 7, ok: true, ch: "Ch 10 (Cultural Attrition)", recT: "Managed Cultural Attrition Cleanly", recI: "Proved standards are non-negotiable (+7% Quality)." }
+      ]},
+      { id: "wsHold", type: "opt", label: "3. Your Reflection Block", desc: "VPs want to cancel reflection for a war room.", opts: [
+        { v: "drop", t: "Cancel reflection — all hands on deck", dWs: -10, ok: false, ch: "Ch 5 (Reflection)" },
+        { v: "trim", t: "Cut reflection in half to attend war-room updates", dWs: -3, ok: false, ch: "Ch 5 (Reflection)" },
+        { v: "keep", t: "Protect reflection fully to rethink strategy calmly", dWs: 10, ok: true, ch: "Ch 5 (Reflection)" }
+      ]},
+      { id: "push", type: "opt", label: "4. Pre-Emptive Sales Push", desc: "Lock in clients before the rival launches?", opts: [
+        { v: "disc", t: "Offer early discounts to grab every account", dBrand: -6, ok: false, ch: "Ch 3 (Strategy)" },
+        { v: "promo", t: "Run a short promotional bundle for hesitant buyers", dBrand: -2, ok: false, ch: "Ch 3 (Strategy)" },
+        { v: "val", t: "Deepen value and service with core clients", dBrand: 6, ok: true, ch: "Ch 3 (Strategy)" }
+      ]},
+      { id: "comm", type: "opt", label: "5. Internal Rumours", desc: "Staff hear whispers about the incoming rival.", opts: [
+        { v: "hide", t: "Keep competitor intelligence at the CXO level to protect floor focus", dTax: 4, ok: false, ch: "Ch 6 (Ownership)" },
+        { v: "email", t: "Send a reassuring email saying everything is fine", dTax: 1, ok: false, ch: "Ch 6 (Ownership)" },
+        { v: "open", t: "Hold an honest, transparent strategic dialogue", dTax: -4, ok: true, ch: "Ch 6 (Ownership)" }
+      ]}
+    ],
+    monkGood: "Your culture is defined by the worst behaviour you tolerate, even in a star performer. Holding stillness and integrity before the storm makes you unshakeable.",
+    monkBad: "Tolerating a solo player for short-term numbers teaches the whole house that standards are negotiable. Panic is the twin brother of BUSYness."
+  },
+  {
+    wk: 9, focus: "Market Shock", kicker: "Week 9 of 10 • Market Disruption Hits",
+    title: "The Rival Launches — Board Pressure Peaks",
+    lead: "<p>The competitor has officially launched, undercutting your pricing by 15% and pitching your top accounts.</p><p>Board directors are concerned and suggest reinstating daily check-ins, centralizing crisis decisions in your office, and matching discounts to protect volume.</p><p>They also ask for a comprehensive deck showing all 40 active company projects.</p><p>Make your executive calls under pressure.</p>",
+    whispers: [
+      { who: "Board Chair", txt: "“Match their 15% discount and show us a 40-project control tracker until this settles.”" },
+      { who: "Sales Head", txt: "“A 7% compromise discount might save two nervous accounts.”" },
+      { who: "Production Head", txt: "“Our 100% reliability is our real moat—if we panic and discount, we lose what took 8 weeks to build.”" }
+    ],
+    levers: [
+      { id: "orders", type: "slider", label: "1. Weekly Order Intake", desc: "Orders accepted this week.", min: 3, max: 10, val: 7, unit: " Orders" },
+      { id: "nfrHold", type: "opt", label: "2. Standards Under Fire", desc: "How do you manage execution during the storm?", opts: [
+        { v: "relax", t: "Reinstate daily check-ins until the storm passes", dTax: 8, ok: false, ch: "Ch 8 (Non-Negotiables)" },
+        { v: "twice", t: "Add twice-weekly escalation trackers for safety", dTax: 3, ok: false, ch: "Ch 8 (Non-Negotiables)" },
+        { v: "hold", t: "Hold the zero-follow-up standard firm", dTax: -5, ok: true, ch: "Ch 8 (4 Non-Negotiables)" }
+      ]},
+      { id: "stance", type: "opt", label: "3. Competitive Response", desc: "How do you respond to the 15% price undercut?", opts: [
+        { v: "old", t: "Match the 15% discount to defend volume", dBrand: -10, ok: false, ch: "Ch 3 (Incumbent Trap)" },
+        { v: "mid", t: "Offer selective 7% defensive discounts", dBrand: -4, ok: false, ch: "Ch 3 (Incumbent Trap)" },
+        { v: "v2", t: "Hold pricing and double down on reliability & focus", dBrand: 10, ok: true, ch: "Ch 3 (Version 2.0)" }
+      ]},
+      { id: "board", type: "opt", label: "4. Board Update Deck", desc: "How do you brief anxious Board directors?", opts: [
+        { v: "busy", t: "Present a 40-project activity deck to show motion", dWs: -5, ok: false, ch: "Ch 1 (BUSYness)" },
+        { v: "dept", t: "Have every VP present their 10-slide department deck", dWs: -2, ok: false, ch: "Ch 1 (BUSYness)" },
+        { v: "clear", t: "Present 3 clear strategic outcomes and owners", dWs: 5, ok: true, ch: "Ch 1 (Outcomes)" }
+      ]},
+      { id: "auth", type: "opt", label: "5. Crisis Decision Authority", desc: "Who responds to urgent client concerns?", opts: [
+        { v: "ceo", t: "Centralize all client decisions in the CEO's office", dTax: 5, ok: false, ch: "Ch 4.h (CEO's Rep)" },
+        { v: "vp", t: "Route all responses through VPs for sign-off", dTax: 2, ok: false, ch: "Ch 4.h (CEO's Rep)" },
+        { v: "rep", t: "Empower front-line leaders as CEO's representatives", dTax: -4, dQual: 4, ok: true, ch: "Ch 10 (Decentralized)" }
+      ]}
+    ],
+    monkGood: "Gold is tested only in fire. By holding your four non-negotiables when fear urged you to discount and micromanage, you proved your greatness is real.",
+    monkBad: "Under pressure, old habits knock loudly at the door. Letting them back inside turns a temporary storm into permanent strategic bankruptcy."
+  },
+  {
+    wk: 10, focus: "Sustaining Greatness", kicker: "Week 10 of 10 • The Long Game",
+    title: "Ecosystem Co-Creation & Never Arriving",
+    lead: "<p>You have reached the final week of the 10-week cycle.</p><p>Suppliers and external partners still operate on uneven schedules, and new initiatives are beginning to crowd the backlog again.</p><p>The Board asks whether the company's current performance depends on you personally or on a self-sustaining leadership bench.</p><p>Set your long-term operating stance.</p>",
+    whispers: [
+      { who: "Production Head", txt: "“We have arrived—let us lock these processes permanently so nothing changes.”" },
+      { who: "Board Chair", txt: "“We want to know this culture outlasts any single executive.”" },
+      { who: "Supply Chain Head", txt: "“Co-creating NFR standards with our suppliers will multiply our speed for the next 5 years.”" }
+    ],
+    levers: [
+      { id: "orders", type: "slider", label: "1. Final Order Intake", desc: "Orders accepted this week.", min: 3, max: 10, val: 8, unit: " Orders" },
+      { id: "eco", type: "opt", label: "2. Partner & Supplier Standards", desc: "Extend reliability standards outside?", opts: [
+        { v: "int", t: "Focus NFR standards internally first before involving external suppliers", dBrand: -3, chainIdx: 6, ok: false, ch: "Ch 7 & 8 (NFRE)" },
+        { v: "sla", t: "Add stricter penalty clauses to vendor contracts", dBrand: 1, chainIdx: 6, ok: false, ch: "Ch 7 & 8 (NFRE)" },
+        { v: "nfre", t: "Co-create a reliable NFR partner ecosystem", dBrand: 8, chainIdx: 6, ok: true, ch: "Ch 7 & 8 (NFRE)" }
+      ]},
+      { id: "proto", type: "opt", label: "3. Process Evolution", desc: "How will policies and processes stay sharp?", opts: [
+        { v: "stat", t: "Freeze our proven operating processes to guarantee predictable execution", dQual: -4, ok: false, ch: "Ch 9 (Phase 12)" },
+        { v: "ann", t: "Review processes once a year at the annual offsite", dQual: 1, ok: false, ch: "Ch 9 (Phase 12)" },
+        { v: "iter", t: "Treat systems as ongoing prototypes to refine", dQual: 6, ok: true, ch: "Ch 9 (Prototyping)" }
+      ]},
+      { id: "sub", type: "opt", label: "4. Preventing Busywork Drift", desc: "New initiatives are crowding the backlog again.", opts: [
+        { v: "none", t: "Celebrate success and greenlight new projects", dTax: 4, ok: false, ch: "Ch 10 (Long Game)" },
+        { v: "cap", t: "Ask departments to self-police their workload", dTax: 1, ok: false, ch: "Ch 10 (Long Game)" },
+        { v: "stop", t: "Institutionalize quarterly 'Stop Doing' & reflection", dTax: -5, ok: true, ch: "Ch 10 (Sustaining)" }
+      ]},
+      { id: "succ", type: "opt", label: "5. Leadership Continuity", desc: "Does greatness outlast any single executive?", opts: [
+        { v: "one", t: "Keep the CEO as the central decision hub", dWs: -5, ok: false, ch: "Ch 10 (Decentralized)" },
+        { v: "dep", t: "Designate a strong deputy to shadow the CEO on critical decisions", dWs: 1, ok: false, ch: "Ch 10 (Decentralized)" },
+        { v: "pipe", t: "Build self-sustaining distributed leadership", dWs: 6, ok: true, ch: "Ch 10 (Sustaining)" }
+      ]}
+    ],
+    monkGood: "Greatness is not a summit you conquer once; it is a garden you tend every season. You have built an ecosystem that thrives without frantic noise.",
+    monkBad: "Even a great temple collects dust if no one tends it. Mistaking achievement for arrival is how yesterday's triumph quietly becomes tomorrow's BUSYness."
+  }
+];
+
+function saveProgress() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch (e) {}
+}
+function clearProgress() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+}
+
+function init(fresh = false) {
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  const params = new URLSearchParams(window.location.search);
+  const urlTeam = params.get("team") || "";
+  if (!fresh) {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      if (saved && saved.phase && saved.phase !== "intro") {
+        s = saved; render(); return;
+      }
+    } catch (e) {}
+  }
+  clearProgress();
+  s = {
+    phase: "intro", wk: 1, profit: 0, totRev: 0, totExp: 0, cash: 50, tax: 25, qual: 70, brand: 70, ws: 20,
+    backlog: 0, delayed: [], rights: [], wrongs: [], choices: [], lastReview: null, history: [],
+    csat: 70, esat: 65, ee: 62, vsat: 68, esg: 66, npd: 45, newMkt: 45, ordersInHand: 10, hpoScore: 62,
+    ceoName: "", industry: "Manufacturing & Industrial", mode: "standard", teamCode: urlTeam,
+    chain: [1, 1, 1, 1, 1, 1, 1], // 0=Red, 1=Amber, 2=Green across 7 links
+    mondayPact: ""
+  };
+  render();
+}
+
+function applyMode() {
+  if (s.mode === "hard") { s.tax = 35; s.cash = 35; }
+  else { s.tax = 25; s.cash = 50; }
+}
+
+function updateHUD() {
+  document.getElementById("k-rev").textContent = `₹${s.totRev} Cr`;
+  document.getElementById("k-exp").textContent = `₹${s.totExp} Cr`;
+  document.getElementById("k-prof").textContent = `₹${s.profit} Cr`;
+  document.getElementById("k-cash").textContent = `Cash: ₹${s.cash} Cr`;
+  document.getElementById("k-tax").textContent = `${s.tax}%`;
+  document.getElementById("k-tax").style.color = s.tax >= 35 ? "var(--crimson)" : s.tax <= 10 ? "var(--emerald)" : "var(--navy)";
+  document.getElementById("k-qual").textContent = `${s.qual}%`;
+  document.getElementById("k-brand").textContent = `${s.brand}%`;
+  document.getElementById("k-brand-sub").textContent = s.brand >= 85 ? "Trusted Partner" : s.brand < 55 ? "“Have to manage them”" : "Stable";
+  document.getElementById("k-ws").textContent = `${s.ws}%`;
+  const hpoEl = document.getElementById("k-hpo"); if (hpoEl) hpoEl.textContent = `${s.hpoScore || 62}/100`;
+
+  const completed = s.phase === "intro" ? 0 : s.phase === "final" ? 10 : (s.phase === "review" ? s.wk : s.wk - 1);
+  const pct = Math.round((completed / 10) * 100);
+  document.getElementById("prog-fill").style.width = `${pct}%`;
+  document.getElementById("prog-pct").textContent = `${pct}% Complete`;
+  document.getElementById("prog-label").textContent = s.phase === "intro" ? "Simulation Progress: Ready to Begin" : s.phase === "final" ? "Simulation Progress: All 10 Weeks Completed" : `Simulation Progress: Week ${s.wk} of 10 (${s.phase === "review" ? "Consequences" : "Decisions"})`;
+}
+
+function setOpt(key, val, btn) {
+  sfxClick();
+  inp[key] = val;
+  btn.parentElement.querySelectorAll(".opt-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  const card = btn.closest(".lever");
+  if (card) card.classList.add("decided");
+  const W = WEEKS[s.wk - 1];
+  const reqIds = W.levers.filter(l => l.type === "opt").map(l => l.id);
+  const done = reqIds.filter(id => inp[id] !== undefined).length;
+  const runBtn = document.getElementById("run-wk-btn");
+  if (runBtn) {
+    if (done === reqIds.length) {
+      runBtn.disabled = false; runBtn.style.opacity = "1"; runBtn.style.cursor = "pointer";
+      runBtn.textContent = `Run Week ${s.wk} →`;
+    } else {
+      runBtn.textContent = `Select all ${reqIds.length} decisions to Run Week ${s.wk} (${done} / ${reqIds.length})`;
+    }
+  }
+}
+
+function buildChainBar() {
+  const names = ["1. Recruit", "2. Train", "3. Promote", "4. Sales", "5. Delivery", "6. Brand", "7. Future"];
+  return `<div class="chain-bar">${s.chain.map((v, i) => `<div class="c-node ${v === 2 ? 'g' : v === 0 ? 'r' : 'a'}">${names[i]}</div>`).join("")}</div>`;
+}
+
+function buildVisualBanner() {
+  const qCls = s.qual >= 80 ? "ok" : s.qual < 60 ? "bad" : "warn";
+  const tCls = s.tax <= 12 ? "ok" : s.tax >= 35 ? "bad" : "warn";
+  const bCls = s.brand >= 85 ? "ok" : s.brand < 58 ? "bad" : "warn";
+  const wCls = s.ws >= 45 ? "ok" : s.ws < 20 ? "bad" : "warn";
+  const mood = s.tax <= 12 && s.brand >= 80 ? "High-Flow Version 2.0" : s.tax >= 35 ? "Chase Machine Bottleneck" : "Operational Stretch";
+  return `
+    <div class="visual-banner">
+      <div class="vb-head"><span>Live Organizational Pulse — End of Week ${s.wk}</span><span style="color:${s.tax >= 35 ? 'var(--crimson)' : 'var(--emerald)'}">${mood}</span></div>
+      <div class="vb-flow">
+        <div class="vb-node ${qCls}"><div>⚙️</div><div class="vb-lbl">Capability</div><div class="vb-stat">${s.qual}%</div></div>
+        <div class="vb-arr">&rarr;</div>
+        <div class="vb-node ${tCls}"><div>⚡</div><div class="vb-lbl">Follow-Up</div><div class="vb-stat">${s.tax}%</div></div>
+        <div class="vb-arr">&rarr;</div>
+        <div class="vb-node ${bCls}"><div>🏆</div><div class="vb-lbl">Credibility</div><div class="vb-stat">${s.brand}%</div></div>
+        <div class="vb-arr">&rarr;</div>
+        <div class="vb-node ${wCls}"><div>🧭</div><div class="vb-lbl">Whitespace</div><div class="vb-stat">${s.ws}%</div></div>
+      </div>
+    </div>`;
+}
+
+function buildBalancedScorecardHTML() {
+  const pill = (lbl, val, sub="") => `<div style="background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 11px"><div style="font-size:0.7rem;text-transform:uppercase;color:var(--muted);font-weight:700">${lbl}</div><div style="font-size:1.15rem;font-weight:800;color:var(--navy)">${val}</div>${sub ? `<div style="font-size:0.72rem;color:var(--muted)">${sub}</div>` : ''}</div>`;
+  return `
+    <div style="background:var(--subtle);border:1.5px solid var(--border-strong);border-top:4px solid var(--gold);border-radius:14px;padding:18px 20px;margin:18px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        <div style="font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.09em;color:var(--navy)">🏛️ Boardroom HPO Balanced Scorecard (4 Pillars)</div>
+        <div style="background:var(--navy);color:#fde68a;padding:4px 12px;border-radius:999px;font-weight:800;font-size:0.84rem">Overall HPO Index: ${s.hpoScore}/100</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px">
+        <div style="border-left:3px solid var(--emerald);padding-left:10px">
+          <div style="font-size:0.72rem;font-weight:800;color:var(--emerald);text-transform:uppercase;margin-bottom:6px">1. Financial Health</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            ${pill("Revenue", "₹" + s.totRev + " Cr")}
+            ${pill("Net Profit", "₹" + s.profit + " Cr")}
+            ${pill("Cash Flow", "₹" + s.cash + " Cr")}
+            ${pill("Orders in Hand", s.ordersInHand + " /wk")}
+          </div>
+        </div>
+        <div style="border-left:3px solid var(--sapphire);padding-left:10px">
+          <div style="font-size:0.72rem;font-weight:800;color:var(--sapphire);text-transform:uppercase;margin-bottom:6px">2. Customer &amp; Market</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            ${pill("CSAT Rating", s.csat + "%", "Customer Sat.")}
+            ${pill("Credibility", s.brand + "%", "Brand Trust")}
+            ${pill("New Markets", s.newMkt + "%", "Expansion")}
+            ${pill("Quality", s.qual + "%", "Delivery Std.")}
+          </div>
+        </div>
+        <div style="border-left:3px solid #7c3aed;padding-left:10px">
+          <div style="font-size:0.72rem;font-weight:800;color:#7c3aed;text-transform:uppercase;margin-bottom:6px">3. People &amp; Culture</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            ${pill("ESAT Rating", s.esat + "%", "Employee Sat.")}
+            ${pill("Engagement", s.ee + "%", "EE Index")}
+            ${pill("Follow-Up", s.tax + "%", "Target: 0%")}
+            ${pill("Whitespace", s.ws + "%", "Target: 50%+")}
+          </div>
+        </div>
+        <div style="border-left:3px solid var(--gold);padding-left:10px">
+          <div style="font-size:0.72rem;font-weight:800;color:var(--gold);text-transform:uppercase;margin-bottom:6px">4. Future &amp; Ecosystem</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            ${pill("NPD Index", s.npd + "%", "New Products")}
+            ${pill("VSAT Rating", s.vsat + "%", "Vendor Sat.")}
+            ${pill("ESG Rating", s.esg + "/100", "Env/Soc/Gov")}
+            ${pill("HPO Index", s.hpoScore + "/100", "Overall")}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildChartsHTML() {
+  const h = s.history; if (!h.length) return "";
+  const W = 400, H = 125, pad = 22;
+  const maxP = Math.max(55, ...h.map(x => Math.max(10, x.wkProfit)));
+  const barW = Math.min(26, (W - pad * 2) / Math.max(1, h.length) - 6);
+  const bars = h.map((x, i) => {
+    const xPos = pad + i * ((W - pad * 2) / Math.max(1, h.length)) + 4;
+    const bh = Math.max(4, (Math.max(0, x.wkProfit) / maxP) * (H - pad * 2));
+    const yPos = H - pad - bh;
+    const col = x.wkProfit >= 28 ? "#059669" : x.wkProfit >= 14 ? "#1d4ed8" : "#dc2626";
+    return `<rect x="${xPos}" y="${yPos}" width="${barW}" height="${bh}" rx="3" fill="${col}"/><text x="${xPos + barW/2}" y="${H - 5}" font-size="9" fill="#64748b" text-anchor="middle">W${x.wk}</text><text x="${xPos + barW/2}" y="${yPos - 4}" font-size="8.5" font-weight="700" fill="currentColor" text-anchor="middle">₹${x.wkProfit}</text>`;
+  }).join("");
+  const pts = k => h.map((x, i) => `${h.length === 1 ? W/2 : pad + (i / (h.length - 1)) * (W - pad * 2)},${H - pad - (x[k] / 100) * (H - pad * 2)}`).join(" ");
+  const dots = (k, c) => h.map((x, i) => `<circle cx="${h.length === 1 ? W/2 : pad + (i / (h.length - 1)) * (W - pad * 2)}" cy="${H - pad - (x[k] / 100) * (H - pad * 2)}" r="3.5" fill="${c}"/>`).join("");
+  return `
+    <div class="charts-row">
+      <div class="chart-card"><div class="chart-title"><span>Weekly Profit Trend (₹ Cr)</span><span style="color:var(--emerald)">Total: ₹${s.profit} Cr</span></div><svg viewBox="0 0 ${W} ${H}" width="100%" height="125"><line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="#cbd5e1"/>${bars}</svg></div>
+      <div class="chart-card"><div class="chart-title"><span>Credibility vs. Follow-Up</span><span><span style="color:var(--emerald)">● Credibility</span> &nbsp; <span style="color:var(--crimson)">● Follow-Up</span></span></div><svg viewBox="0 0 ${W} ${H}" width="100%" height="125"><line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="#cbd5e1"/>${h.length > 1 ? `<polyline fill="none" stroke="#059669" stroke-width="2.5" points="${pts('brand')}"/><polyline fill="none" stroke="#dc2626" stroke-width="2.5" points="${pts('tax')}"/>` : ''}${dots('brand','#059669')}${dots('tax','#dc2626')}</svg></div>
+    </div>`;
+}
+
+function showTrophyModal() {
+  const pct = Math.min(100, Math.max(0, Math.round((s.profit / 331) * 100)));
+  const tier = s.profit >= 281 ? "Gold" : s.profit >= 182 ? "Silver" : "Bronze";
+  const fill = tier === "Gold" ? "#f59e0b" : tier === "Silver" ? "#94a3b8" : "#b45309";
+  const nameStr = s.ceoName ? `, ${s.ceoName}` : "";
+  const headline = tier === "Gold" ? `Congratulations${nameStr}! 100X Architect` : tier === "Silver" ? `Well Done${nameStr}! Rising HPO Leader` : `Simulation Complete${nameStr}`;
+  if (tier === "Gold") fireConfetti();
+  document.getElementById("trophy-content").innerHTML = `
+    <div style="margin:0 auto 12px"><svg viewBox="0 0 64 64" width="120" height="120"><path d="M18 10h28v16c0 9-6 16-14 16s-14-7-14-16V10z" fill="${fill}" stroke="#0b2545" stroke-width="2.5"/><path d="M18 14H10c0 9 4 14 8 14M46 14h8c0 9-4 14-8 14" fill="none" stroke="#0b2545" stroke-width="2.5" stroke-linecap="round"/><rect x="28" y="42" width="8" height="10" fill="#0b2545"/><rect x="20" y="52" width="24" height="5" rx="2" fill="#0b2545"/><polygon points="32,16 34.5,21 40,21.5 36,25 37,30.5 32,27.8 27,30.5 28,25 24,21.5 29.5,21" fill="#fff"/></svg></div>
+    <div style="font-size:0.9rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--gold)">${tier} Executive Trophy</div>
+    <h2>${headline}</h2>
+    <div class="modal-score">HPO Score: ${s.hpoScore}/100 &bull; ₹${s.profit} Cr / ₹331 Cr Max (${pct}%)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 24px;text-align:left">
+      <div style="background:var(--emerald-bg);border:1.5px solid var(--emerald-border);border-radius:12px;padding:12px 16px"><div style="font-size:0.76rem;text-transform:uppercase;color:var(--muted);font-weight:700">Follow-Up Load</div><strong style="font-size:1.3rem">${s.tax}%</strong> <span style="font-size:0.84rem;color:var(--emerald);font-weight:600">(Best: 0%)</span></div>
+      <div style="background:var(--sapphire-bg);border:1.5px solid #bfdbfe;border-radius:12px;padding:12px 16px"><div style="font-size:0.76rem;text-transform:uppercase;color:var(--muted);font-weight:700">Competency Chain</div><strong style="font-size:1.3rem">${s.qual}%</strong> <span style="font-size:0.84rem;color:var(--sapphire);font-weight:600">(Best: 100%)</span></div>
+      <div style="background:var(--emerald-bg);border:1.5px solid var(--emerald-border);border-radius:12px;padding:12px 16px"><div style="font-size:0.76rem;text-transform:uppercase;color:var(--muted);font-weight:700">Brand Credibility</div><strong style="font-size:1.3rem">${s.brand}%</strong> <span style="font-size:0.84rem;color:var(--emerald);font-weight:600">(Best: 100%)</span></div>
+      <div style="background:var(--gold-bg);border:1.5px solid var(--gold-border);border-radius:12px;padding:12px 16px"><div style="font-size:0.76rem;text-transform:uppercase;color:var(--muted);font-weight:700">CEO Whitespace</div><strong style="font-size:1.3rem">${s.ws}%</strong> <span style="font-size:0.84rem;color:var(--gold);font-weight:600">(Best: 85%)</span></div>
+    </div>
+    <button class="btn-main" style="max-width:420px;margin:0 auto" onclick="document.getElementById('trophy-modal').classList.add('hidden')">Open Full Executive Debrief &rarr;</button>`;
+  document.getElementById("trophy-modal").classList.remove("hidden");
+}
+
+function copyShare() {
+  const txt = `I just completed The KILL BUSYness Engine (${s.industry})!\n🏆 Profit: ₹${s.profit} Cr / ₹331 Cr Max\n⚡ Follow-Up Load: ${s.tax}% | 🌟 Credibility: ${s.brand}% | 🧭 Whitespace: ${s.ws}%\nPlay here: ${window.location.origin}${window.location.pathname}${s.teamCode ? '?team=' + encodeURIComponent(s.teamCode) : ''}`;
+  navigator.clipboard.writeText(txt).then(() => alert("Executive Scorecard copied! Paste it into WhatsApp or LinkedIn."));
+}
+
+function createTeamLink() {
+  const code = (s.teamCode || ("TEAM" + Math.floor(1000 + Math.random() * 9000))).toUpperCase();
+  const url = `${window.location.origin}${window.location.pathname}?team=${encodeURIComponent(code)}`;
+  navigator.clipboard.writeText(url).then(() => alert(`Team Challenge Link copied!\n\n${url}\n\nShare this with your Core Team to play and compare results.`));
+}
+
+function showGloss(k) {
+  const box = document.getElementById("gloss-box");
+  box.innerHTML = `<strong>${k}:</strong> ${GLOSSARY[k]}`;
+  box.classList.remove("hidden");
+}
+
+function saveFeedback() {
+  const note = document.getElementById("fb-note").value.trim();
+  const rate = document.getElementById("fb-rate").value;
+  if (!note) { alert("Please enter a brief note or 'aha!' moment first."); return; }
+  pushRunToSupabase(note, +rate);
+  document.getElementById("fb-status").textContent = `✓ Thank you! Feedback (${rate}/5) saved to live cohort dashboard.`;
+}
+
+function baseCapFor(wk) { return wk >= 9 ? 18 : wk >= 7 ? 15 : wk >= 4 ? 12 : 10; }
+function render() {
+  updateHUD();
+  const stage = document.getElementById("stage");
+  const pill = document.getElementById("wk-pill");
+
+  if (s.phase === "intro") {
+    pill.textContent = "Executive Briefing";
+    stage.innerHTML = `
+      <div class="hero-grid">
+        <div>
+          <span class="kicker">Management Innovations • 10-Week Executive Simulation</span>
+          <h1>The KILL BUSYness Engine</h1>
+          <p class="lead">You are stepping into the CEO chair of a growing enterprise with strong market demand.</p>
+          <div class="callout">
+            <strong>What to Expect (⏱ Estimated Time: 12–15 Minutes):</strong><br>
+            Across <strong>10 weeks</strong>, you will read each Executive Situation Briefing and make <strong>5 leadership decisions per week</strong>.<br>
+            <strong>Study the dashboard too.</strong>
+          </div>
+          <div class="setup-row">
+            <div class="setup-field"><label>Your Name (Optional)</label><input type="text" placeholder="e.g., Manoj" value="${s.ceoName}" oninput="s.ceoName=this.value.trim()"></div>
+            <div class="setup-field"><label>Your Industry</label><select onchange="s.industry=this.value"><option>Manufacturing &amp; Industrial</option><option>IT &amp; Professional Services</option><option>Consumer &amp; Retail</option><option>Multi-Business Group</option></select></div>
+            <div class="setup-field"><label>Difficulty Mode</label><select onchange="s.mode=this.value;applyMode();updateHUD()"><option value="standard">Standard CEO Mode</option><option value="hard">Boardroom Hard Mode (35% Follow-Up)</option></select></div>
+          </div>
+          <button class="btn-main" onclick="startWeek(1)">Enter Week 1 &rarr;</button>
+        </div>
+        <div style="text-align:center">
+          <img class="hero-cover" src="assets/book-cover.jpg" alt="Kill BUSYness Book Cover">
+          <div style="margin-top:10px;font-size:0.84rem;color:var(--muted);font-weight:600">Based on <em>Kill BUSYness</em> by Manoj Onkar</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  if (s.phase === "review") {
+    pill.textContent = `Week ${s.wk} Consequences`;
+    const r = s.lastReview;
+    const taxPos = r.dTax <= 0, qualPos = r.dQual >= 0, brandPos = r.dBrand >= 0;
+    stage.innerHTML = `
+      <span class="kicker">Week ${s.wk} Outcome &amp; Cause-and-Effect Logic</span>
+      <h2>What Your Week ${s.wk} Decisions Produced</h2>
+      <div class="monk-card">
+        <div class="monk-avatar"><img src="assets/cxo_monk.jpg" alt="The Monk"></div>
+        <div class="monk-body">
+          <div class="monk-head"><span>The Monk's Reflection</span><button class="monk-play" onclick="speakMonk(lastMonkText)">🔊 Replay Monk's Voice</button></div>
+          <div class="monk-quote">${r.monk.split("\n").map(l => `<p style="margin-bottom:6px">“${l}”</p>`).join("")}</div>
+        </div>
+      </div>
+      <div class="max-bar">
+        <div><div style="font-size:0.72rem;text-transform:uppercase;color:#93c5fd;font-weight:700">Week ${s.wk} Accomplishment vs. Maximum Possible</div><strong>Net Profit: ₹${r.wkProfit} Cr</strong> <span style="color:#e2e8f0">(Rev: ₹${r.wkRev} Cr − Exp: ₹${r.wkExp} Cr) &bull; ${r.pctMax}% of ₹${r.maxPossible} Cr Max</span></div>
+        <div style="font-size:0.86rem;color:#fde68a;font-weight:700">${r.delivered} / ${r.demand} Orders Delivered</div>
+      </div>
+      ${buildVisualBanner()}
+      ${buildChainBar()}
+      <div class="delta-grid">
+        <div class="delta-box ${r.wkProfit >= 20 ? 'pos' : 'neg'}"><div class="dl">Week ${s.wk} Profit</div><div class="dv">₹${r.wkProfit} Cr</div><span class="${r.wkProfit >= 20 ? 'pill-pos' : 'pill-neg'}">${r.pctMax}% of Max</span></div>
+        <div class="delta-box ${r.dTax === 0 ? '' : (taxPos ? 'pos' : 'neg')}"><div class="dl">Follow-Up Load</div><div class="dv">${s.tax}%</div><span class="${r.dTax === 0 ? 'pill-neu' : (taxPos ? 'pill-pos' : 'pill-neg')}">${r.dTax > 0 ? '▲ +' : (r.dTax < 0 ? '▼ ' : '')}${r.dTax}%</span></div>
+        <div class="delta-box ${r.dQual === 0 ? '' : (qualPos ? 'pos' : 'neg')}"><div class="dl">Competency Chain</div><div class="dv">${s.qual}%</div><span class="${r.dQual === 0 ? 'pill-neu' : (qualPos ? 'pill-pos' : 'pill-neg')}">${r.dQual > 0 ? '▲ +' : (r.dQual < 0 ? '▼ ' : '')}${r.dQual}%</span></div>
+        <div class="delta-box ${r.dBrand === 0 ? '' : (brandPos ? 'pos' : 'neg')}"><div class="dl">Brand Credibility</div><div class="dv">${s.brand}%</div><span class="${r.dBrand === 0 ? 'pill-neu' : (brandPos ? 'pill-pos' : 'pill-neg')}">${r.dBrand > 0 ? '▲ +' : (r.dBrand < 0 ? '▼ ' : '')}${r.dBrand}%</span></div>
+      </div>
+      ${buildBalancedScorecardHTML()}
+      ${buildChartsHTML()}
+      ${r.dashReport ? `<div style="background:var(--subtle);border:1.5px solid var(--border-strong);border-left:5px solid var(--navy);border-radius:14px;padding:18px 20px;margin:18px 0">
+        <div style="font-size:0.78rem;font-weight:800;text-transform:uppercase;letter-spacing:0.09em;color:var(--navy);margin-bottom:10px">📊 Detailed Weekly Executive Report — Dashboard Changes, Why &amp; Future Impact</div>
+        <div style="display:grid;gap:10px">${r.dashReport.map(item => `<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:0.9rem;line-height:1.5"><strong style="color:var(--navy)">${item.k}:</strong> ${item.why} <span style="color:var(--sapphire);font-weight:600">→ Future Impact:</span> ${item.future}</div>`).join("")}</div>
+      </div>` : ""}
+      <div style="font-size:0.78rem;font-weight:800;text-transform:uppercase;letter-spacing:0.09em;color:var(--navy);margin:14px 0 8px">🧭 Decision-by-Decision Breakdown (Every Success &amp; Failure Explained)</div>
+      <div class="logic-list">${r.logic.map(l => `<div class="logic-item ${l.cls}"><span class="imp-badge">${l.cls === 'good' ? '▲ SUCCESS' : '▼ TRAP / COST'}</span><div><strong>${l.title}</strong><p>${l.text}</p>${l.ch ? `<span class="ch-tag">📖 ${l.ch}</span>` : ""}</div></div>`).join("")}</div>
+      <button class="btn-main" onclick="nextAfterReview()">${s.wk < 10 ? `Proceed to Week ${s.wk + 1} →` : "Open Final 10-Week Executive Debrief →"}</button>`;
+    speakMonk(r.monk);
+    return;
+  }
+
+  if (s.phase === "final") {
+    pill.textContent = "Final Executive Debrief";
+    const pctOfBest = Math.min(100, Math.max(0, Math.round((s.profit / 331) * 100)));
+    const verdict = s.profit >= 281 ? "Version 2.0 High-Performance Architect" : s.profit >= 182 ? "Transitioning Leader — Strong Momentum" : "Version 1.0 BUSYness Trap";
+    // Save run for What-If history comparison
+    let pastRuns = [];
+    try { pastRuns = JSON.parse(localStorage.getItem(RUNS_KEY) || "[]"); } catch (e) {}
+    const prevRunText = pastRuns.length ? `Previous Best on This Device: ₹${Math.max(...pastRuns.map(x => x.p))} Cr` : "First Completed Run on This Device";
+    pastRuns.push({ p: s.profit, date: new Date().toLocaleDateString() });
+    try { localStorage.setItem(RUNS_KEY, JSON.stringify(pastRuns.slice(-5))); } catch (e) {}
+
+    stage.innerHTML = `
+      <span class="kicker">10-Week Executive Debrief • ${s.industry}</span>
+      <h2>${verdict}${s.ceoName ? ` — ${s.ceoName}` : ''}</h2>
+      <div class="bench-bar">
+        <div><div style="font-size:0.74rem;text-transform:uppercase;color:#93c5fd;font-weight:700">Your Performance vs. Exact Maximum Achievable (V5.0)</div><strong>₹${s.profit} Cr</strong> <span style="color:#e2e8f0">out of ₹331 Cr Max (${pctOfBest}%) &bull; Gap: ₹${Math.max(0, 331 - s.profit)} Cr &bull; ${prevRunText}</span></div>
+        <div style="font-size:0.86rem">Follow-Up: <strong>${s.tax}%</strong> &bull; Quality: <strong>${s.qual}%</strong> &bull; Credibility: <strong>${s.brand}%</strong> &bull; Whitespace: <strong>${s.ws}%</strong></div>
+      </div>
+      ${s.wrongs.length ? `<div style="background:var(--crimson-bg);border:1.5px solid var(--crimson-border);border-radius:12px;padding:16px 20px;margin-bottom:18px"><div style="font-size:0.76rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--crimson);margin-bottom:8px">🔍 Counterfactual Analysis — Top ${Math.min(3, s.wrongs.length)} Decisions That Cost You The Most Profit</div>${[...s.wrongs].sort((a,b) => (b.costCr||0) - (a.costCr||0)).slice(0, 3).map((w, i) => `<div style="font-size:0.9rem;margin-bottom:5px"><strong>${i + 1}. Week ${w.wk} — ${w.title} <span style="color:var(--crimson)">(~₹${w.costCr || 3.5} Cr cost)</span>:</strong> ${w.impact}</div>`).join("")}</div>` : ""}
+      ${buildChainBar()}
+      ${buildBalancedScorecardHTML()}
+      ${buildChartsHTML()}
+      <div class="debrief-cols">
+        <div class="debrief-col right-col"><h3>▲ What You Did Right &amp; How It Helped</h3>${s.rights.length ? `<div class="rights-grid">${s.rights.map(x => `<div class="d-entry"><strong>W${x.wk}: ${x.title}</strong><span>${x.impact}</span>${x.ch ? `<br><span class="ch-tag">${x.ch}</span>` : ''}</div>`).join("")}</div>` : '<p style="color:var(--muted)">Try replaying with stricter Version 2.0 standards.</p>'}</div>
+        <div class="debrief-col fix-col"><h3>▼ What Could Be Done Differently &amp; Chapter Guide</h3>${s.wrongs.length ? s.wrongs.map(x => `<div class="d-entry"><strong>W${x.wk}: ${x.title}</strong><span>${x.impact}</span>${x.ch ? `<br><span class="ch-tag">Read: ${x.ch}</span>` : ''}</div>`).join("") : '<p style="color:var(--emerald)">Exceptional discipline across all 10 weeks!</p>'}</div>
+      </div>
+      <div style="margin:16px 0">
+        <strong style="font-size:0.86rem;text-transform:uppercase;color:var(--navy)">Explore Kill BUSYness Principles (Click to Read):</strong>
+        <div class="gloss-row">${Object.keys(GLOSSARY).map(k => `<button class="gloss-btn" onclick="showGloss('${k.replace(/'/g, "\\'")}')">${k}</button>`).join("")}</div>
+        <div id="gloss-box" class="gloss-box hidden"></div>
+      </div>
+      <h3 style="margin:26px 0 10px;font-family:var(--serif);font-size:1.25rem;color:var(--navy);border-top:2px solid var(--border);padding-top:18px">📊 10-Week Financial &amp; KPI Performance Summary</h3>
+      <div style="overflow-x:auto"><table><thead><tr><th>Wk</th><th>Focus</th><th>Delivered</th><th>Follow-Up</th><th>Quality</th><th>Credibility</th><th>Revenue</th><th>Expense</th><th>Net Profit</th></tr></thead><tbody>${s.history.map(h => `<tr><td>W${h.wk}</td><td>${h.focus}</td><td>${h.delivered}</td><td>${h.tax}%</td><td>${h.qual}%</td><td>${h.brand}%</td><td>₹${h.wkRev} Cr</td><td>₹${h.wkExp} Cr</td><td><strong>₹${h.wkProfit} Cr</strong></td></tr>`).join("")}</tbody></table></div>
+      <div class="callout" style="background:var(--subtle);border-color:var(--border);border-left-color:var(--sapphire)">
+        <strong>Share Quick Feedback:</strong>
+        <div class="setup-row" style="margin-top:8px">
+          <div class="setup-field"><input id="fb-note" type="text" placeholder="What was your #1 'aha!' moment?"></div>
+          <div class="setup-field" style="max-width:150px"><select id="fb-rate"><option value="5">★★★★★ (5/5)</option><option value="4">★★★★ (4/5)</option><option value="3">★★★ (3/5)</option></select></div>
+          <button class="btn-sec" onclick="saveFeedback()">Submit Feedback</button>
+        </div>
+        <div id="fb-status" style="font-size:0.84rem;color:var(--emerald);font-weight:700"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-main" onclick="init(true)">Play Again &amp; Beat ₹${Math.max(331, s.profit)} Cr</button>
+        <button class="btn-sec" onclick="copyShare()">📤 Copy Scorecard</button>
+        <button class="btn-sec" onclick="createTeamLink()">👥 Challenge Core Team</button>
+        <button class="btn-sec" onclick="window.print()">🖨 Print Certificate</button>
+      </div>`;
+    return;
+  }
+
+  // ACTIVE WEEK SCREEN
+  const W = WEEKS[s.wk - 1];
+  const SWINGS = [0, 0.10, 0.20, -0.10, 0, 0.20, 0.10, -0.10, -0.20, 0.20];
+  const swing = SWINGS[s.wk - 1];
+  const trustSalesPct = (s.brand - 70) * 2;
+  const brandSalesMult = Math.max(0.30, 1 + (trustSalesPct / 100));
+  const baseCap = baseCapFor(s.wk);
+  const salesOpp = Math.max(3, Math.round(baseCap * (1 + swing) * brandSalesMult));
+  const swingLbl = swing > 0 ? `+${Math.round(swing*100)}% Market Surge` : swing < 0 ? `${Math.round(swing*100)}% Market Dip` : "Steady Market (0%)";
+  const brandSalesLbl = trustSalesPct > 0 ? `, +${trustSalesPct}% increase due to credibility increase` : trustSalesPct < 0 ? `, ${trustSalesPct}% drop due to credibility drop` : "";
+  const pendingRipples = s.delayed.filter(d => d.wk === s.wk).map(d => d.preview).filter(Boolean);
+
+  pill.textContent = `Week ${s.wk} of 10`;
+  inp = {};
+  const positions = [true, true, false, false].sort(() => Math.random() - 0.5);
+  let posIdx = 0;
+  const leversHTML = W.levers.map(lv => {
+    if (lv.type === "slider") {
+      const defVal = Math.min(salesOpp, 7);
+      inp[lv.id] = defVal;
+      return `<div class="lever"><div class="lever-top"><label>${lv.label}</label></div><span class="desc">Sales Opportunity: <strong>${salesOpp} orders</strong> (${swingLbl}${brandSalesLbl}) &bull; Base Capacity: ${baseCap}/wk</span><input type="range" min="2" max="${salesOpp}" value="${defVal}" oninput="inp['${lv.id}']=+this.value;document.getElementById('ro-${lv.id}').textContent=this.value+' Orders'"><div class="readout" id="ro-${lv.id}">${defVal} Orders</div></div>`;
+    } else {
+      const ordered = lv.opts.slice().sort(() => Math.random() - 0.5);
+      return `<div class="lever"><div class="lever-top"><label>${lv.label}</label><span class="decided-tag">✓ Decided</span></div><span class="desc">${lv.desc}</span><div class="opt-stack">${ordered.map(o => `<button class="opt-btn" onclick="setOpt('${lv.id}','${o.v}',this)">${o.t}</button>`).join("")}</div></div>`;
+    }
+  }).join("");
+
+  stage.innerHTML = `
+    <span class="kicker">${W.kicker}</span>
+    <h2>${W.title}</h2>
+    <div class="brief-box">
+      <span class="brief-lbl">Executive Situation Briefing — Read Carefully Before Deciding</span>
+      <div class="brief-txt">${W.lead}</div>
+      ${pendingRipples.length ? `<div class="brief-ripple">🔔 From Your Earlier Decisions: ${pendingRipples.join(" • ")}</div>` : ""}
+      <div class="brief-meta">
+        <span class="brief-pill">📈 Sales Opportunity: ${salesOpp} Orders (${swingLbl}${brandSalesLbl})</span>
+        <span class="brief-pill">🏭 Base Capacity: 10 Orders/Wk</span>
+        <span class="brief-pill">📦 Pending Backlog: ${s.backlog} Orders</span>
+      </div>
+    </div>
+    <div class="cxo-section">
+      <div class="cxo-bar">
+        <span class="cxo-title">🎙️ CXO Inputs — Voices From Your Leadership Team</span>
+        <button class="cxo-play-all" onclick="speakAllCXOs()">🔊 Play All CXO Inputs</button>
+      </div>
+      <div class="whisper-grid">
+        ${W.whispers.map((w, wi) => {
+          const c = getCXO(w.who);
+          const safeTxt = w.txt.replace(/'/g, "\'");
+          const safeWho = w.who.replace(/'/g, "\'");
+          return `<div class="cxo-card" style="border-top-color:${c.col}">
+            <div class="cxo-av" style="border-color:${c.col};background:${c.col}"><img src="${c.img}" alt="${w.who}"></div>
+            <div class="cxo-info">
+              <div class="cxo-head"><strong>${w.who}</strong><button class="cxo-spk" onclick="speakCXO('${safeWho}','${safeTxt}')">🔊 Listen</button></div>
+              <div class="cxo-txt">${w.txt}</div>
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>
+    <div class="lever-grid">${leversHTML}</div>
+    <button class="btn-main" id="run-wk-btn" disabled style="opacity:0.45;cursor:not-allowed" onclick="submitWeek(${salesOpp})">Select all 4 decisions to Run Week ${s.wk} (0 / 4)</button>`;
+}
+
+function submitWeek(salesOpp = 10) {
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  const W = WEEKS[s.wk - 1];
+  const prevTax = s.tax, prevQual = s.qual, prevBrand = s.brand, prevWs = s.ws;
+  const logic = [];
+  let goodChoices = 0;
+
+  // Apply delayed consequences arriving this week (Quality, Credibility, & Follow-Up)
+  s.delayed.filter(d => d.wk === s.wk).forEach(d => {
+    if (d.deltaQual) s.qual = Math.max(30, Math.min(100, s.qual + d.deltaQual));
+    if (d.deltaBrand) s.brand = Math.max(15, Math.min(100, s.brand + d.deltaBrand));
+    if (d.deltaTax) s.tax = Math.max(0, Math.min(75, s.tax + d.deltaTax));
+    logic.push({ cls: ((d.deltaQual || 0) < 0 || (d.deltaBrand || 0) < 0 || (d.deltaTax || 0) > 0) ? "bad" : "good", title: d.title, text: d.text, ch: d.ch || "" });
+  });
+
+  // Theoretical Max Possible Profit for this week
+  let optTax = prevTax, optBrand = prevBrand;
+  W.levers.filter(l => l.type === "opt").forEach(l => {
+    const best = l.opts.find(o => o.ok) || l.opts[0];
+    if (best.dTax) optTax = Math.max(0, Math.min(75, optTax + best.dTax));
+    if (best.dBrand) optBrand = Math.max(15, Math.min(100, optBrand + best.dBrand));
+  });
+  const baseCap = baseCapFor(s.wk);
+  const optCap = Math.max(2, Math.floor(baseCap * (1 - optTax / 100)));
+  const optMult = (optBrand + 3) >= 85 ? 2.4 : (optBrand + 3) >= 68 ? 1.5 : 0.7;
+  // maxPossible computed below using full P&L
+
+  // Apply Player's 4 Toggle Levers (including short-term investment costs on positive moves)
+  let invExpense = 0, trapCost = 0;
+  W.levers.filter(l => l.type === "opt").forEach(l => {
+    const chosen = l.opts.find(o => o.v === inp[l.id]);
+    if (!chosen) return;
+    if (chosen.ok) goodChoices++;
+    else trapCost += 4.5;
+    if (chosen.invCost) invExpense += chosen.invCost;
+    if (chosen.dTax) s.tax = Math.max(0, Math.min(75, s.tax + chosen.dTax));
+    if (chosen.dQual) s.qual = Math.max(30, Math.min(100, s.qual + chosen.dQual));
+    if (chosen.dBrand) s.brand = Math.max(15, Math.min(100, s.brand + chosen.dBrand));
+    if (chosen.dWs) s.ws = Math.max(5, Math.min(85, s.ws + chosen.dWs));
+    if (typeof chosen.chainIdx === "number") s.chain[chosen.chainIdx] = chosen.ok ? 2 : 0;
+    if (chosen.lagWk) {
+      s.delayed.push({
+        wk: chosen.lagWk, deltaQual: chosen.lagQual || 0, deltaBrand: chosen.lagBrand || 0, deltaTax: chosen.lagTax || 0, ch: chosen.ch || "",
+        preview: chosen.ok ? `Your disciplined W${s.wk} decision is now strengthening operations.` : `Your W${s.wk} shortcut is now surfacing as operational friction.`,
+        title: chosen.ok ? `Delayed Compounding Benefit (from W${s.wk})` : `Delayed Downstream Impact (from W${s.wk})`,
+        text: chosen.recI || (chosen.ok ? "Earlier discipline is compounding positively now." : "Earlier compromise has cascaded downstream.")
+      });
+    }
+    const estCostCr = chosen.ok ? 0 : Math.round((3.5 + Math.max(0, chosen.dTax || 0) * 0.4 + Math.max(0, -(chosen.dQual || 0)) * 0.25 + Math.max(0, -(chosen.dBrand || 0)) * 0.3) * 10) / 10;
+    const entryTitle = chosen.recT || `${l.label.replace(/^\d+\.\s*/, '')}: ${chosen.t}`;
+    const entryImp = chosen.recI || (chosen.ok ? "Strengthened your Version 2.0 operating system." : `Added hidden operational friction & rework drag (~₹${estCostCr} Cr impact).`);
+    (chosen.ok ? s.rights : s.wrongs).push({ wk: s.wk, title: entryTitle, impact: entryImp, ch: chosen.ch, costCr: estCostCr });
+    if (!s.choices) s.choices = [];
+    s.choices.push({ wk: s.wk, lever: l.label.replace(/^\d+\.\s*/, ''), choice: chosen.t, ok: !!chosen.ok });
+    const impParts = [];
+    if (chosen.dTax) impParts.push(`Follow-Up ${chosen.dTax > 0 ? '+' : ''}${chosen.dTax}%`);
+    if (chosen.dQual) impParts.push(`Quality ${chosen.dQual > 0 ? '+' : ''}${chosen.dQual}%`);
+    if (chosen.dBrand) impParts.push(`Credibility ${chosen.dBrand > 0 ? '+' : ''}${chosen.dBrand}%`);
+    if (chosen.dWs) impParts.push(`Whitespace ${chosen.dWs > 0 ? '+' : ''}${chosen.dWs}%`);
+    if (chosen.invCost) impParts.push(`Short-term investment ₹${chosen.invCost} Cr`);
+    const lagNote = chosen.lagWk ? ` ⏳ Future Impact (Week ${chosen.lagWk}): ${chosen.ok ? 'Compounds positively downstream.' : 'Creates delayed operational friction/rework downstream.'}` : "";
+    logic.push({
+      cls: chosen.ok ? "good" : "bad",
+      title: `${l.label.replace(/^\d+\.\s*/, '')}: ${chosen.t}`,
+      text: (chosen.recI || (chosen.ok ? "Strengthened your Version 2.0 operating system and built durable organizational capability." : "Added operational friction, reactive follow-up, or eroded long-term capability.")) + (impParts.length ? ` [Dashboard Impact: ${impParts.join(" • ")}]` : "") + lagNote,
+      ch: chosen.ch || ""
+    });
+  });
+
+  // Delivery & Full P&L Engine (Revenue, Expenses, Quality Rework, Credibility Pricing +2% per +10% Credibility)
+  const orders = inp.orders || 6;
+  const netCap = Math.max(2, Math.floor(baseCap * (1 - s.tax / 100)));
+  const demand = orders + s.backlog;
+  const delivered = Math.min(demand, netCap);
+  const missed = Math.max(0, demand - delivered);
+  s.backlog = Math.min(10, missed);
+
+  if (missed > 0) {
+    s.tax = Math.min(75, s.tax + missed * 3);
+    s.brand = Math.max(15, s.brand - missed * 3);
+    logic.push({ cls: "bad", title: `Delivery Bottleneck (${missed} Orders Missed)`, text: `Demand (${demand}) exceeded effective capacity (${netCap}). Backlog raised Follow-Up Load and reduced Brand Credibility.`, ch: "Ch 4.e (Delivery)" });
+  } else {
+    s.brand = Math.min(100, s.brand + 3);
+    logic.push({ cls: "good", title: "100% On-Time Delivery", text: `Effective capacity (${netCap}) cleanly fulfilled all ${demand} orders with zero backlog.`, ch: "Ch 4.e & 8 (NFR)" });
+  }
+
+  // Price Rise: +2% for every +10% Credibility above 70% (and -2% per -10% below)
+  const unitPrice = 5.0 * (1 + ((s.brand - 70) / 10) * 0.02);
+  const wkRev = Math.round(delivered * unitPrice);
+  // Expenses: Fixed (8) + Variable (2/order) + Quality Rework + Chase Overhead + Backlog Penalty + Investments
+  const reworkCost = delivered * ((100 - s.qual) / 100) * 1.2;
+  const chaseCost = (s.tax / 100) * 6.0;
+  const wsCost = s.ws < 20 ? 2.0 : (s.ws >= 50 ? -1.5 : 0);
+  if (s.ws < 20) logic.push({ cls: "bad", title: "Low CEO Whitespace Bottleneck (+₹2 Cr Cost)", text: "Whitespace below 20% forced reactive firefighting across leadership.", ch: "Ch 5 & 9 (Project Whitespace)" });
+  else if (s.ws >= 50) logic.push({ cls: "good", title: "Strategic Clarity Dividend (-₹1.5 Cr Overhead)", text: "50%+ CEO Whitespace eliminated reactive waste and sharpened execution.", ch: "Ch 5 (Mount Neverest)" });
+  const wkExp = Math.max(4, Math.round(8.0 + (delivered * 2.0) + reworkCost + chaseCost + (s.backlog * 1.5) + invExpense + wsCost + trapCost));
+  const wkProfit = wkRev - wkExp;
+  s.totRev += wkRev;
+  s.totExp += wkExp;
+  s.profit += wkProfit;
+  s.cash = Math.max(5, s.cash + wkProfit);
+  // V6.0 HPO Balanced Scorecard Engine (CSAT, ESAT, EE, VSAT, ESG, NPD, New Market, Orders in Hand, Cash Flow)
+  const clamp = (v, lo=20, hi=100) => Math.max(lo, Math.min(hi, Math.round(v)));
+  s.csat = clamp(s.csat + (missed === 0 ? 4 : -missed * 4) + (s.qual >= 85 ? 3 : s.qual < 65 ? -3 : 0));
+  s.esat = clamp(s.esat + (s.tax <= 15 ? 4 : s.tax >= 30 ? -4 : 0) + (s.ws >= 40 ? 3 : s.ws < 20 ? -3 : 0));
+  s.ee   = clamp(s.ee + (goodChoices >= 3 ? 5 : goodChoices <= 1 ? -4 : 1) + (s.tax <= 10 ? 2 : -1));
+  s.vsat = clamp(s.vsat + (missed === 0 ? 3 : -3) + (goodChoices >= 3 ? 3 : -2));
+  s.esg  = clamp(s.esg + (goodChoices >= 3 ? 4 : goodChoices <= 1 ? -3 : 0) + (s.qual >= 80 ? 2 : -1));
+  s.npd  = clamp(s.npd + (s.ws >= 35 ? 6 : 1) + (goodChoices >= 3 ? 4 : -2));
+  s.newMkt = clamp(s.newMkt + (s.brand >= 80 ? 6 : 1) + (s.csat >= 80 ? 4 : -1));
+  s.ordersInHand = Math.max(4, Math.round(baseCap * (0.85 + (s.csat / 100) * 0.35 + (s.newMkt / 100) * 0.25)));
+  const finScore = clamp((s.profit / Math.max(1, s.wk * 33)) * 100, 10, 100);
+  const custScore = Math.round((s.csat + s.brand + s.newMkt) / 3);
+  const pplScore = Math.round((s.esat + s.ee + (100 - s.tax) + s.ws) / 4);
+  const futScore = Math.round((s.npd + s.vsat + s.esg + s.qual) / 4);
+  s.hpoScore = Math.round(finScore * 0.30 + custScore * 0.25 + pplScore * 0.25 + futScore * 0.20);
+
+
+  // Recalculate dynamic maxPossible using exact P&L formula
+  const optPrice = 5.0 * (1 + ((Math.min(100, optBrand + 3) - 70) / 10) * 0.02);
+  const optDeliv = Math.min(salesOpp, optCap);
+  const optRev = Math.round(optDeliv * optPrice);
+  const optExp = Math.round(8.0 + (optDeliv * 2.0) + (optCap < 10 ? 1 : 0));
+  const maxPossible = Math.max(10, optRev - optExp);
+  const pctMax = Math.min(100, Math.max(0, Math.round((wkProfit / maxPossible) * 100)));
+
+  const badItems = logic.filter(l => l.cls === "bad" && !l.title.startsWith("Delivery Bottleneck") && !l.title.startsWith("Delayed"));
+  const monkLines = [];
+  if (goodChoices === 4) { monkLines.push(W.monkGood); }
+  else if (goodChoices >= 2) {
+    monkLines.push(`You planted ${goodChoices} seeds of clarity in Week ${s.wk}, yet old habits still pulled at your sleeve.`);
+    if (badItems.length) monkLines.push(`Look closely at ${badItems[0].title.split(":")[0]}—what feels convenient in the moment quietly adds weight to the weeks ahead.`);
+  } else {
+    monkLines.push(W.monkBad);
+    monkLines.push("Motion is not progress; when every urgent request is indulged, the organization grows busier while growing weaker.");
+  }
+  if (missed > 0) monkLines.push(`Even a strong vessel takes on water when loaded beyond its waterline—${missed} missed deliveries remind us that saying no to overload is also courage.`);
+  else monkLines.push("Every commitment this week was honoured on time; when reliability becomes your quiet habit, credibility begins selling on your behalf.");
+  const monk = monkLines.join("\n");
+
+  const nextCap = Math.max(2, Math.floor(baseCapFor(Math.min(10, s.wk + 1)) * (1 - s.tax / 100)));
+  const dashReport = [
+    {
+      k: `P&L — Net Profit ₹${wkProfit} Cr (Rev ₹${wkRev} Cr − Exp ₹${wkExp} Cr)`,
+      why: `Shipped ${delivered} of ${demand} orders at ₹${unitPrice.toFixed(2)} Cr/order. Expenses included Fixed ₹8 Cr, Delivery ₹${Math.round(delivered * 2)} Cr, Quality Rework ₹${reworkCost.toFixed(1)} Cr, Chase Overhead ₹${chaseCost.toFixed(1)} Cr${invExpense ? `, and System Investments ₹${invExpense} Cr` : ""}.`,
+      future: missed > 0 ? `${missed} missed orders carried into next week's backlog (+₹${(missed * 1.5).toFixed(1)} Cr penalty risk) — match intake to capacity.` : `Clean zero-backlog execution protects margins and keeps next week's capacity 100% available for fresh revenue.`
+    },
+    {
+      k: `Follow-Up Load (${prevTax}% → ${s.tax}%)`,
+      why: s.tax < prevTax ? `Dropped by ${prevTax - s.tax}% because you built direct ownership and avoided the Chase Machine.` : s.tax > prevTax ? `Rose by ${s.tax - prevTax}% due to follow-up dependency, coordinators, or delivery backlog.` : `Held steady at ${s.tax}%.`,
+      future: `Your effective delivery capacity entering Week ${Math.min(10, s.wk + 1)} is ${nextCap} orders/week (every 10% drop in Follow-Up permanently unlocks +1 order/week of capacity).`
+    },
+    {
+      k: `Competency / Quality (${prevQual}% → ${s.qual}%)`,
+      why: s.qual > prevQual ? `Improved by +${s.qual - prevQual}% through rigorous hiring, training, or standards.` : s.qual < prevQual ? `Dropped by ${s.qual - prevQual}% due to shortcuts or delayed rework arriving this week.` : `Held steady at ${s.qual}%.`,
+      future: `At ${s.qual}% Quality, hidden rework costs ₹${reworkCost.toFixed(1)} Cr/week. Pushing Quality above 85% eliminates rework drag and protects client trust.`
+    },
+    {
+      k: `Brand Credibility (${prevBrand}% → ${s.brand}%)`,
+      why: s.brand > prevBrand ? `Rose by +${s.brand - prevBrand}% from reliable delivery and disciplined leadership.` : s.brand < prevBrand ? `Fell by ${s.brand - prevBrand}% from missed deliveries, shortcuts, or reactive discounting.` : `Held steady at ${s.brand}%.`,
+      future: `Credibility directly sets your pricing power (currently ₹${unitPrice.toFixed(2)} Cr/order). Every +10% Credibility adds +2% revenue on every future order.`
+    },
+    {
+      k: `CEO Whitespace (${prevWs}% → ${s.ws}%)`,
+      why: s.ws > prevWs ? `Expanded by +${s.ws - prevWs}% by delegating cleanly and cutting busywork.` : s.ws < prevWs ? `Shrank by ${s.ws - prevWs}% as reactive work crowded your calendar.` : `Held steady at ${s.ws}%.`,
+      future: s.ws < 20 ? `WARNING: Below 20% Whitespace adds +₹2 Cr/week in firefighting overhead and leaves zero buffer for market shocks.` : s.ws >= 50 ? `STRONG: 50%+ Whitespace earns a -₹1.5 Cr/week Strategic Clarity Dividend every week.` : `Push toward 50%+ Whitespace to unlock the -₹1.5 Cr/week Strategic Clarity Dividend.`
+    }
+  ];
+
+  s.history.push({ wk: s.wk, focus: W.focus, delivered, backlog: s.backlog, tax: s.tax, qual: s.qual, brand: s.brand, wkRev, wkExp, wkProfit, maxPossible });
+  s.lastReview = { wkRev, wkExp, wkProfit, maxPossible, pctMax, delivered, demand, dTax: s.tax - prevTax, dQual: s.qual - prevQual, dBrand: s.brand - prevBrand, logic, monk, dashReport };
+
+  if (missed > 0) sfxWarn(); else sfxGood();
+  s.phase = "review";
+  saveProgress();
+  render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function startWeek(n) { sfxClick(); s.wk = n; s.phase = "week"; saveProgress(); render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+function nextAfterReview() {
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  if (s.wk < 10) startWeek(s.wk + 1);
+  else { s.phase = "final"; pushRunToSupabase(); render(); sfxFanfare(); showTrophyModal(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+}
+
+init();
+</script>
+</body>
+</html>
