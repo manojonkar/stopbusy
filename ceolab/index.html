@@ -1113,7 +1113,7 @@ function render() {
         <div id="gloss-box" class="gloss-box hidden"></div>
       </div>
       <h3 style="margin:26px 0 10px;font-family:var(--serif);font-size:1.25rem;color:var(--navy);border-top:2px solid var(--border);padding-top:18px">📊 10-Week Financial &amp; KPI Performance Summary</h3>
-      <div style="overflow-x:auto"><table><thead><tr><th>Wk</th><th>Focus</th><th>Delivered</th><th>Follow-Up</th><th>Quality</th><th>Credibility</th><th>Revenue</th><th>Expense</th><th>Net Profit</th></tr></thead><tbody>${s.history.map(h => `<tr><td>W${h.wk}</td><td>${h.focus}</td><td>${h.delivered}</td><td>${h.tax}%</td><td>${h.qual}%</td><td>${h.brand}%</td><td>₹${h.wkRev} Cr</td><td>₹${h.wkExp} Cr</td><td><strong>₹${h.wkProfit} Cr</strong></td></tr>`).join("")}</tbody></table></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Wk</th><th>Focus</th><th>Delivered</th><th>Missed</th><th>Follow-Up</th><th>Quality</th><th>Credibility</th><th>Revenue</th><th>Expense</th><th>Net Profit</th></tr></thead><tbody>${s.history.map(h => `<tr><td>W${h.wk}</td><td>${h.focus}</td><td>${h.delivered}</td><td style="color:${(h.missed||0)>0?'var(--crimson)':'var(--emerald)'};font-weight:700">${h.missed || 0}</td><td>${h.tax}%</td><td>${h.qual}%</td><td>${h.brand}%</td><td>₹${h.wkRev} Cr</td><td>₹${h.wkExp} Cr</td><td><strong>₹${h.wkProfit} Cr</strong></td></tr>`).join("")}</tbody></table></div>
       <div class="callout" style="background:var(--subtle);border-color:var(--border);border-left-color:var(--sapphire)">
         <strong>Share Quick Feedback:</strong>
         <div class="setup-row" style="margin-top:8px">
@@ -1280,7 +1280,7 @@ function submitWeek(salesOpp = 10) {
   if (missed > 0) {
     s.tax = Math.min(75, s.tax + missed * 3);
     s.brand = Math.max(15, s.brand - missed * 3);
-    logic.push({ cls: "bad", title: `Delivery Bottleneck (${missed} Orders Missed)`, text: `Demand (${demand}) exceeded effective capacity (${netCap}). Backlog raised Follow-Up Load and reduced Brand Credibility.`, ch: "Ch 4.e (Delivery)" });
+    logic.push({ cls: "bad", title: `Delivery Bottleneck (${missed} Orders Missed)`, text: `Committed Orders (${demand}) exceeded effective capacity (${netCap}). Backlog raised Follow-Up Load and reduced Brand Credibility.`, ch: "Ch 4.e (Delivery)" });
   } else {
     s.brand = Math.min(100, s.brand + 3);
     logic.push({ cls: "good", title: "100% On-Time Delivery", text: `Effective capacity (${netCap}) cleanly fulfilled all ${demand} orders with zero backlog.`, ch: "Ch 4.e & 8 (NFR)" });
@@ -1369,7 +1369,8 @@ function submitWeek(salesOpp = 10) {
     }
   ];
 
-  s.history.push({ wk: s.wk, focus: W.focus, delivered, backlog: s.backlog, tax: s.tax, qual: s.qual, brand: s.brand, wkRev, wkExp, wkProfit, maxPossible });
+  s.totMissed = (s.totMissed || 0) + missed;
+  s.history.push({ wk: s.wk, focus: W.focus, delivered, missed, backlog: s.backlog, tax: s.tax, qual: s.qual, brand: s.brand, wkRev, wkExp, wkProfit, maxPossible });
   s.lastReview = { wkRev, wkExp, wkProfit, maxPossible, pctMax, delivered, demand, dTax: s.tax - prevTax, dQual: s.qual - prevQual, dBrand: s.brand - prevBrand, logic, monk, dashReport };
 
   if (missed > 0) sfxWarn(); else sfxGood();
