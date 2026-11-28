@@ -1066,7 +1066,6 @@ function render() {
         <div><div style="font-size:0.72rem;text-transform:uppercase;color:#93c5fd;font-weight:700">Week ${s.wk} Accomplishment vs. Maximum Possible</div><strong>Net Profit: ₹${r.wkProfit} Cr</strong> <span style="color:#e2e8f0">(Rev: ₹${r.wkRev} Cr − Exp: ₹${r.wkExp} Cr) &bull; ${r.pctMax}% of ₹${r.maxPossible} Cr Max</span></div>
         <div style="font-size:0.86rem;color:#fde68a;font-weight:700">${r.delivered} / ${r.demand} Orders Delivered</div>
       </div>
-      ${buildVisualBanner()}
       ${buildChainBar()}
       <div class="delta-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
         <div class="delta-box pos"><div class="dl">Week ${s.wk} Revenue</div><div class="dv">₹${r.wkRev} Cr</div><span class="pill-neu">Exp: ₹${r.wkExp} Cr</span></div>
