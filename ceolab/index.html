@@ -1060,11 +1060,13 @@ function render() {
       </div>
       ${buildVisualBanner()}
       ${buildChainBar()}
-      <div class="delta-grid">
+      <div class="delta-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+        <div class="delta-box pos"><div class="dl">Week ${s.wk} Revenue</div><div class="dv">₹${r.wkRev} Cr</div><span class="pill-neu">Exp: ₹${r.wkExp} Cr</span></div>
         <div class="delta-box ${r.wkProfit >= 20 ? 'pos' : 'neg'}"><div class="dl">Week ${s.wk} Profit</div><div class="dv">₹${r.wkProfit} Cr</div><span class="${r.wkProfit >= 20 ? 'pill-pos' : 'pill-neg'}">${r.pctMax}% of Max</span></div>
         <div class="delta-box ${r.dTax === 0 ? '' : (taxPos ? 'pos' : 'neg')}"><div class="dl">Follow-Up Load</div><div class="dv">${s.tax}%</div><span class="${r.dTax === 0 ? 'pill-neu' : (taxPos ? 'pill-pos' : 'pill-neg')}">${r.dTax > 0 ? '▲ +' : (r.dTax < 0 ? '▼ ' : '')}${r.dTax}%</span></div>
         <div class="delta-box ${r.dQual === 0 ? '' : (qualPos ? 'pos' : 'neg')}"><div class="dl">Competency Chain</div><div class="dv">${s.qual}%</div><span class="${r.dQual === 0 ? 'pill-neu' : (qualPos ? 'pill-pos' : 'pill-neg')}">${r.dQual > 0 ? '▲ +' : (r.dQual < 0 ? '▼ ' : '')}${r.dQual}%</span></div>
         <div class="delta-box ${r.dBrand === 0 ? '' : (brandPos ? 'pos' : 'neg')}"><div class="dl">Brand Credibility</div><div class="dv">${s.brand}%</div><span class="${r.dBrand === 0 ? 'pill-neu' : (brandPos ? 'pill-pos' : 'pill-neg')}">${r.dBrand > 0 ? '▲ +' : (r.dBrand < 0 ? '▼ ' : '')}${r.dBrand}%</span></div>
+        <div class="delta-box ${s.ws >= 50 ? 'pos' : (s.ws < 20 ? 'neg' : '')}"><div class="dl">CEO Whitespace</div><div class="dv">${s.ws}%</div><span class="${s.ws >= 50 ? 'pill-pos' : (s.ws < 20 ? 'pill-neg' : 'pill-neu')}">${s.ws >= 50 ? 'Clarity Dividend' : (s.ws < 20 ? 'Firefighting' : 'Target: 50%+')}</span></div>
       </div>
       ${buildBalancedScorecardHTML()}
       ${buildChartsHTML()}
