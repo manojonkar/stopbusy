@@ -287,12 +287,12 @@ async function pushRunToSupabase(note = "", rating = null) {
   try {
     if (!s.runId) s.runId = (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random()*16|0; return (c==='x'?r:(r&0x3|0x8)).toString(16); }));
     if (s.runSaved && (note || rating)) {
-      await fetch(`${SB_URL}/rest/v1/rpc/update_run_feedback`, {
+      const r2 = await fetch(`${SB_URL}/rest/v1/rpc/update_run_feedback`, {
         method: "POST",
         headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({ p_id: s.runId, p_note: note, p_rating: rating })
       });
-      return;
+      return r2.ok;
     }
     if (s.runSaved) return;
     const res = await fetch(`${SB_URL}/rest/v1/game_runs`, {
@@ -307,8 +307,9 @@ async function pushRunToSupabase(note = "", rating = null) {
         choices_json: s.choices || [], build_version: "V5.0"
       })
     });
-    if (res.ok) s.runSaved = true;
-  } catch (e) {}
+    if (res.ok) { s.runSaved = true; saveProgress(); return true; }
+    return false;
+  } catch (e) { return false; }
 }
 const RUNS_KEY = "kbe_v2_runs";
 const GLOSSARY = {
@@ -945,12 +946,12 @@ function showGloss(k) {
   box.classList.remove("hidden");
 }
 
-function saveFeedback() {
+async function saveFeedback() {
   const note = document.getElementById("fb-note").value.trim();
   const rate = document.getElementById("fb-rate").value;
   if (!note) { alert("Please enter a brief note or 'aha!' moment first."); return; }
-  pushRunToSupabase(note, +rate);
-  document.getElementById("fb-status").textContent = `✓ Thank you! Feedback (${rate}/5) saved to live cohort dashboard.`;
+  const ok = await pushRunToSupabase(note, +rate);
+  document.getElementById("fb-status").textContent = ok ? `✓ Thank you! Feedback (${rate}/5) saved to live cohort dashboard.` : "⚠️ Could not save feedback — please check connection or database setup.";
 }
 
 function baseCapFor(wk) { return wk >= 9 ? 18 : wk >= 7 ? 15 : wk >= 4 ? 12 : 10; }
@@ -1067,7 +1068,7 @@ function render() {
         <div id="fb-status" style="font-size:0.84rem;color:var(--emerald);font-weight:700"></div>
       </div>
       <div class="btn-row">
-        <button class="btn-main" onclick="init(true)">Play Again &amp; Beat ₹${Math.max(331, s.profit)} Cr</button>
+        <button class="btn-main" onclick="init(true)">${s.profit >= 331 ? "Play Again (Maximum Achieved!)" : `Play Again &amp; Beat ₹${Math.max(331, s.profit)} Cr`}</button>
         <button class="btn-sec" onclick="copyShare()">📤 Copy Scorecard</button>
         <button class="btn-sec" onclick="createTeamLink()">👥 Challenge Core Team</button>
         <button class="btn-sec" onclick="window.print()">🖨 Print Certificate</button>
@@ -1095,7 +1096,7 @@ function render() {
     if (lv.type === "slider") {
       const defVal = Math.min(salesOpp, 7);
       inp[lv.id] = defVal;
-      return `<div class="lever"><div class="lever-top"><label>${lv.label}</label></div><span class="desc">Sales Opportunity: <strong>${salesOpp} orders</strong> (${swingLbl}${brandSalesLbl}) &bull; Base Capacity: ${baseCap}/wk</span><input type="range" min="2" max="${salesOpp}" value="${defVal}" oninput="inp['${lv.id}']=+this.value;document.getElementById('ro-${lv.id}').textContent=this.value+' Orders'"><div class="readout" id="ro-${lv.id}">${defVal} Orders</div></div>`;
+      return `<div class="lever"><div class="lever-top"><label>${lv.label}</label></div><span class="desc">Sales Opportunity: <strong>${salesOpp} orders</strong> (${swingLbl}${brandSalesLbl}) &bull; Base Capacity: ${baseCap}/wk &bull; Effective Capacity Now: ${Math.max(2, Math.floor(baseCap * (1 - s.tax / 100)))}/wk</span><input type="range" min="2" max="${salesOpp}" value="${defVal}" oninput="inp['${lv.id}']=+this.value;document.getElementById('ro-${lv.id}').textContent=this.value+' Orders'"><div class="readout" id="ro-${lv.id}">${defVal} Orders</div></div>`;
     } else {
       const ordered = lv.opts.slice().sort(() => Math.random() - 0.5);
       return `<div class="lever"><div class="lever-top"><label>${lv.label}</label><span class="decided-tag">✓ Decided</span></div><span class="desc">${lv.desc}</span><div class="opt-stack">${ordered.map(o => `<button class="opt-btn" onclick="setOpt('${lv.id}','${o.v}',this)">${o.t}</button>`).join("")}</div></div>`;
@@ -1111,7 +1112,7 @@ function render() {
       ${pendingRipples.length ? `<div class="brief-ripple">🔔 From Your Earlier Decisions: ${pendingRipples.join(" • ")}</div>` : ""}
       <div class="brief-meta">
         <span class="brief-pill">📈 Sales Opportunity: ${salesOpp} Orders (${swingLbl}${brandSalesLbl})</span>
-        <span class="brief-pill">🏭 Base Capacity: 10 Orders/Wk</span>
+        <span class="brief-pill">🏭 Base Capacity: ${baseCap} Orders/Wk</span>
         <span class="brief-pill">📦 Pending Backlog: ${s.backlog} Orders</span>
       </div>
     </div>
@@ -1267,7 +1268,7 @@ function submitWeek(salesOpp = 10) {
   const dashReport = [
     {
       k: `P&L — Net Profit ₹${wkProfit} Cr (Rev ₹${wkRev} Cr − Exp ₹${wkExp} Cr)`,
-      why: `Shipped ${delivered} of ${demand} orders at ₹${unitPrice.toFixed(2)} Cr/order. Expenses included Fixed ₹8 Cr, Delivery ₹${Math.round(delivered * 2)} Cr, Quality Rework ₹${reworkCost.toFixed(1)} Cr, Chase Overhead ₹${chaseCost.toFixed(1)} Cr${invExpense ? `, and System Investments ₹${invExpense} Cr` : ""}.`,
+      why: `Shipped ${delivered} of ${demand} orders at ₹${unitPrice.toFixed(2)} Cr/order. Expenses included Fixed ₹8 Cr, Delivery ₹${Math.round(delivered * 2)} Cr, Quality Rework ₹${reworkCost.toFixed(1)} Cr, Chase Overhead ₹${chaseCost.toFixed(1)} Cr${invExpense ? `, System Investments ₹${invExpense} Cr` : ""}${trapCost ? `, Decision Friction ₹${trapCost.toFixed(1)} Cr` : ""}${s.backlog ? `, Backlog Penalty ₹${(s.backlog * 1.5).toFixed(1)} Cr` : ""}.`,
       future: missed > 0 ? `${missed} missed orders carried into next week's backlog (+₹${(missed * 1.5).toFixed(1)} Cr penalty risk) — match intake to capacity.` : `Clean zero-backlog execution protects margins and keeps next week's capacity 100% available for fresh revenue.`
     },
     {
@@ -1306,7 +1307,7 @@ function startWeek(n) { sfxClick(); s.wk = n; s.phase = "week"; saveProgress(); 
 function nextAfterReview() {
   if (window.speechSynthesis) window.speechSynthesis.cancel();
   if (s.wk < 10) startWeek(s.wk + 1);
-  else { s.phase = "final"; pushRunToSupabase(); render(); sfxFanfare(); showTrophyModal(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  else { s.phase = "final"; saveProgress(); pushRunToSupabase(); render(); sfxFanfare(); showTrophyModal(); window.scrollTo({ top: 0, behavior: "smooth" }); }
 }
 
 init();

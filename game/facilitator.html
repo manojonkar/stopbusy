@@ -167,7 +167,7 @@ function renderTable(data) {
 function exportCSV() {
   if (!lastData.length) { alert("Load cohort data first."); return; }
   const cols = ["created_at","ceo_name","team_code","industry","net_profit","total_rev","total_exp","follow_up","quality","credibility","whitespace","feedback_rating","feedback_note","build_version"];
-  const esc = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const esc = v => { let t = String(v ?? ""); if (/^[=+\-@]/.test(t)) t = "'" + t; return `"${t.replace(/"/g, '""')}"`; };
   const csv = [cols.join(","), ...lastData.map(r => cols.map(c => esc(r[c])).join(","))].join("\n");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
