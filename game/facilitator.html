@@ -17,7 +17,7 @@ body { background:var(--canvas); color:#0f172a; font-family:'Inter',sans-serif; 
 .wrap { max-width:1360px; margin:24px auto 60px; padding:0 24px; }
 .card { background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:26px 30px; box-shadow:0 6px 24px rgba(11,37,69,0.05); margin-bottom:20px; }
 .controls { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:18px; }
-input { padding:10px 14px; border:1.5px solid #cbd5e1; border-radius:9px; font-size:0.96rem; min-width:220px; }
+input { padding:10px 14px; border:1.5px solid #cbd5e1; border-radius:9px; font-size:0.96rem; min-width:190px; }
 button { padding:10px 18px; border-radius:9px; font-weight:700; font-size:0.9rem; cursor:pointer; border:none; }
 .btn-p { background:linear-gradient(135deg,var(--navy),var(--sapphire)); color:#fff; }
 .btn-s { background:var(--subtle); border:1.5px solid #cbd5e1; color:var(--navy); }
@@ -37,8 +37,8 @@ th { font-size:0.72rem; text-transform:uppercase; color:var(--muted); background
 <header class="nav">
   <div class="nav-in">
     <div class="brand">
-      <img src="assets/emblem_circle.png" alt="Lion" style="width:40px;height:40px;border-radius:50%;border:2px solid #f59e0b;background:#fff">
-      <div><strong>Facilitator Cohort Control Room</strong><span>The KILL BUSYness Engine • Live Supabase Benchmarking</span></div>
+      <img src="assets/emblem_circle.png" alt="Lion Emblem" style="width:40px;height:40px;border-radius:50%;border:2px solid #f59e0b;background:#fff">
+      <div><strong>Facilitator Cohort Control Room</strong><span>The KILL BUSYness Engine (V5.0) • Secure Live Benchmarking</span></div>
     </div>
     <a href="index.html" style="color:#fde68a;text-decoration:none;font-weight:700;font-size:0.9rem">← Back to Simulation</a>
   </div>
@@ -47,7 +47,8 @@ th { font-size:0.72rem; text-transform:uppercase; color:var(--muted); background
 <main class="wrap">
   <div class="card">
     <div class="controls">
-      <input id="code-in" type="text" placeholder="Cohort Code (leave blank for ALL)">
+      <input id="pass-in" type="password" placeholder="Facilitator Passcode" aria-label="Facilitator Passcode">
+      <input id="code-in" type="text" placeholder="Cohort Code (blank = ALL)" aria-label="Cohort Code">
       <button class="btn-p" onclick="loadCohort()">Load Live Cohort</button>
       <button class="btn-s" onclick="copyInvite()">📋 Copy Cohort Invite Link</button>
       <button class="btn-s" onclick="exportCSV()">📥 Download CSV (Excel)</button>
@@ -71,9 +72,9 @@ th { font-size:0.72rem; text-transform:uppercase; color:var(--muted); background
     <div style="overflow-x:auto">
       <table>
         <thead>
-          <tr><th>Rank</th><th>Leader</th><th>Cohort</th><th>Industry</th><th>Net Profit</th><th>Rev / Exp</th><th>Follow-Up</th><th>Quality</th><th>Credibility</th><th>Whitespace</th><th>Monday Commitment / Feedback</th></tr>
+          <tr><th>Rank</th><th>Leader</th><th>Cohort</th><th>Industry</th><th>Net Profit</th><th>Rev / Exp</th><th>Follow-Up</th><th>Quality</th><th>Credibility</th><th>Whitespace</th><th>Rating &amp; Feedback</th></tr>
         </thead>
-        <tbody id="rows"><tr><td colspan="11" style="text-align:center;color:var(--muted);padding:24px">Click "Load Live Cohort" to fetch results from Supabase.</td></tr></tbody>
+        <tbody id="rows"><tr><td colspan="11" style="text-align:center;color:var(--muted);padding:24px">Enter your Facilitator Passcode and click "Load Live Cohort".</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -82,31 +83,29 @@ th { font-size:0.72rem; text-transform:uppercase; color:var(--muted); background
 <script>
 const SB_URL = "https://oictzdcrdqgwawezwjzr.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pY3R6ZGNyZHFnd2F3ZXp3anpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5OTc5MzQsImV4cCI6MjEwMTU3MzkzNH0._-QPa4TDifIriTJlcuP05w6eCPnXUjcFDQNcFEQ0kB8";
-
 let lastData = [];
-const PASS = "KILLBUSY";
-function ensureAuth() {
-  if (sessionStorage.getItem("kb_fac_ok") === "1") return true;
-  const entered = prompt("Enter Facilitator Passcode to access Cohort Control Room:");
-  if (entered && entered.trim().toUpperCase() === PASS) {
-    sessionStorage.setItem("kb_fac_ok", "1");
-    return true;
-  }
-  document.getElementById("status").textContent = "🔒 Locked — Refresh and enter Facilitator Passcode.";
-  document.getElementById("rows").innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--crimson);padding:24px;font-weight:700">🔒 Facilitator Passcode Required. Refresh page to unlock.</td></tr>';
-  return false;
+
+function escHtml(v) {
+  return String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
 async function loadCohort() {
-  if (!ensureAuth()) return;
+  const pass = document.getElementById("pass-in").value.trim() || sessionStorage.getItem("kb_fac_pass") || "";
   const code = document.getElementById("code-in").value.trim().toUpperCase();
   const st = document.getElementById("status");
+  if (!pass) { st.textContent = "🔒 Enter your Facilitator Passcode first."; return; }
   st.textContent = "Loading...";
-  let url = `${SB_URL}/rest/v1/game_runs?select=*&order=net_profit.desc&limit=100`;
-  if (code) url += `&team_code=eq.${encodeURIComponent(code)}`;
   try {
-    const res = await fetch(url, { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } });
-    if (!res.ok) throw new Error("Run supabase_setup.sql in Supabase SQL Editor first.");
+    const res = await fetch(`${SB_URL}/rest/v1/rpc/get_cohort_runs`, {
+      method: "POST",
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_passcode: pass, p_team_code: code })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || "Invalid passcode or run V5.0 SQL in Supabase.");
+    }
+    sessionStorage.setItem("kb_fac_pass", pass);
     const data = await res.json();
     lastData = data;
     st.textContent = `Loaded ${data.length} run(s) • Updated ${new Date().toLocaleTimeString()}`;
@@ -133,18 +132,7 @@ function renderHeatmap(data) {
   const top = Object.entries(stats).map(([k, v]) => ({ k, pct: Math.round((v.traps / v.tot) * 100), n: v.tot })).sort((a, b) => b.pct - a.pct).slice(0, 6);
   if (!top.length) { box.style.display = "none"; return; }
   box.style.display = "block";
-  rows.innerHTML = top.map(t => `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px"><strong>${t.k}</strong><br><span style="color:${t.pct >= 50 ? '#dc2626' : '#059669'};font-weight:700">${t.pct}% chose BUSYness Trap</span> <span style="color:#64748b">(${t.n} leaders)</span></div>`).join("");
-}
-
-function exportCSV() {
-  if (!lastData.length) { alert("Load cohort data first."); return; }
-  const cols = ["created_at","ceo_name","team_code","industry","net_profit","total_rev","total_exp","follow_up","quality","credibility","whitespace","feedback_rating","monday_pact","feedback_note"];
-  const esc = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const csv = [cols.join(","), ...lastData.map(r => cols.map(c => esc(r[c])).join(","))].join("\n");
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
-  a.download = `KILL_BUSYness_Cohort_${(document.getElementById("code-in").value.trim() || "ALL")}.csv`;
-  a.click();
+  rows.innerHTML = top.map(t => `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px"><strong>${escHtml(t.k)}</strong><br><span style="color:${t.pct >= 50 ? '#dc2626' : '#059669'};font-weight:700">${t.pct}% chose BUSYness Trap</span> <span style="color:#64748b">(${t.n} leaders)</span></div>`).join("");
 }
 
 function renderTable(data) {
@@ -162,18 +150,29 @@ function renderTable(data) {
   document.getElementById("rows").innerHTML = data.map((r, i) => `
     <tr>
       <td><strong>#${i + 1}</strong></td>
-      <td><strong>${r.ceo_name || 'Anonymous'}</strong></td>
-      <td>${r.team_code || 'GLOBAL'}</td>
-      <td>${r.industry || '-'}</td>
-      <td><strong>₹${r.net_profit} Cr</strong></td>
-      <td>₹${r.total_rev || 0} / ₹${r.total_exp || 0}</td>
-      <td><span class="${r.follow_up <= 10 ? 'badge-g' : 'badge-r'}">${r.follow_up}%</span></td>
-      <td>${r.quality}%</td>
-      <td>${r.credibility}%</td>
-      <td>${r.whitespace}%</td>
-      <td style="font-size:0.82rem">${r.monday_pact || r.feedback_note || '-'}</td>
+      <td><strong>${escHtml(r.ceo_name || 'Anonymous')}</strong></td>
+      <td>${escHtml(r.team_code || 'GLOBAL')}</td>
+      <td>${escHtml(r.industry || '-')}</td>
+      <td><strong>₹${Number(r.net_profit) || 0} Cr</strong></td>
+      <td>₹${Number(r.total_rev) || 0} / ₹${Number(r.total_exp) || 0}</td>
+      <td><span class="${(Number(r.follow_up) || 0) <= 10 ? 'badge-g' : 'badge-r'}">${Number(r.follow_up) || 0}%</span></td>
+      <td>${Number(r.quality) || 0}%</td>
+      <td>${Number(r.credibility) || 0}%</td>
+      <td>${Number(r.whitespace) || 0}%</td>
+      <td style="font-size:0.82rem">${r.feedback_rating ? `★${Number(r.feedback_rating)}/5 ` : ''}${escHtml(r.feedback_note || '-')}</td>
     </tr>
   `).join("");
+}
+
+function exportCSV() {
+  if (!lastData.length) { alert("Load cohort data first."); return; }
+  const cols = ["created_at","ceo_name","team_code","industry","net_profit","total_rev","total_exp","follow_up","quality","credibility","whitespace","feedback_rating","feedback_note","build_version"];
+  const esc = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const csv = [cols.join(","), ...lastData.map(r => cols.map(c => esc(r[c])).join(","))].join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+  a.download = `KILL_BUSYness_Cohort_${(document.getElementById("code-in").value.trim() || "ALL")}.csv`;
+  a.click();
 }
 
 function copyInvite() {
@@ -185,7 +184,8 @@ function copyInvite() {
 
 const pCode = new URLSearchParams(window.location.search).get("team");
 if (pCode) document.getElementById("code-in").value = pCode;
-loadCohort();
+const savedPass = sessionStorage.getItem("kb_fac_pass");
+if (savedPass) { document.getElementById("pass-in").value = savedPass; loadCohort(); }
 </script>
 </body>
 </html>
