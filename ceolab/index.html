@@ -1308,15 +1308,29 @@ function submitWeek(salesOpp = 10) {
   s.totExp += wkExp;
   s.profit += wkProfit;
   s.cash = Math.max(5, s.cash + wkProfit);
-  // V6.0 HPO Scorecard Engine (CSAT, ESAT, EE, VSAT, ESG, NPD, New Market, Orders in Hand, Cash Flow)
+  // V6.1 HPO Scorecard Engine — Directly tied to specific weekly decisions + organizational health
   const clamp = (v, lo=20, hi=100) => Math.max(lo, Math.min(hi, Math.round(v)));
-  s.csat = clamp(s.csat + (missed === 0 ? 4 : -missed * 4) + (s.qual >= 85 ? 3 : s.qual < 65 ? -3 : 0));
-  s.esat = clamp(s.esat + (s.tax <= 15 ? 4 : s.tax >= 30 ? -4 : 0) + (s.ws >= 40 ? 3 : s.ws < 20 ? -3 : 0));
-  s.ee   = clamp(s.ee + (goodChoices >= 3 ? 5 : goodChoices <= 1 ? -4 : 1) + (s.tax <= 10 ? 2 : -1));
-  s.vsat = clamp(s.vsat + (missed === 0 ? 3 : -3) + (goodChoices >= 3 ? 3 : -2));
-  s.esg  = clamp(s.esg + (goodChoices >= 3 ? 4 : goodChoices <= 1 ? -3 : 0) + (s.qual >= 80 ? 2 : -1));
-  s.npd  = clamp(s.npd + (s.ws >= 35 ? 6 : 1) + (goodChoices >= 3 ? 4 : -2));
-  s.newMkt = clamp(s.newMkt + (s.brand >= 80 ? 6 : 1) + (s.csat >= 80 ? 4 : -1));
+  let dEsat = 0, dEe = 0, dVsat = 0, dNpd = 0, dEsg = 0;
+  W.levers.filter(l => l.type === "opt").forEach(l => {
+    const ch = l.opts.find(o => o.v === inp[l.id]);
+    if (!ch) return;
+    const id = l.id;
+    const ok = !!ch.ok;
+    // Pillar 3: ESAT (Employee Satisfaction) & EE (Employee Engagement)
+    if (["coords","onboard","promo","restruct","style","cal","star","comm"].includes(id)) dEsat += ok ? 5 : -5;
+    if (["meet","std","listen","nfrScale","nextTier","auth","succ","stop"].includes(id)) dEe += ok ? 5 : -5;
+    // Pillar 4: VSAT (Vendor Satisfaction), NPD (New Product Dev) & ESG (Env/Soc/Gov)
+    if (["outage","eco","defect","date"].includes(id)) dVsat += ok ? 7 : -6;
+    if (["hire","focus","assump","legacy","bench","proto"].includes(id)) dNpd += ok ? 7 : -5;
+    if (["star","comm","outage","board","eco","succ","score"].includes(id)) dEsg += ok ? 5 : -5;
+  });
+  s.csat   = clamp(s.csat + (missed === 0 ? 4 : -missed * 4) + (s.qual >= 85 ? 3 : s.qual < 65 ? -3 : 0));
+  s.esat   = clamp(s.esat + dEsat + (s.tax <= 15 ? 2 : s.tax >= 30 ? -3 : 0) + (s.ws >= 40 ? 2 : s.ws < 20 ? -2 : 0));
+  s.ee     = clamp(s.ee + dEe + (s.tax <= 10 ? 2 : s.tax >= 30 ? -2 : 0));
+  s.vsat   = clamp(s.vsat + dVsat + (missed === 0 ? 2 : -3));
+  s.esg    = clamp(s.esg + dEsg + (s.qual >= 80 ? 1 : -1));
+  s.npd    = clamp(s.npd + dNpd + (s.ws >= 40 ? 3 : 0));
+  s.newMkt = clamp(s.newMkt + (s.brand >= 80 ? 5 : 1) + (s.csat >= 80 ? 3 : -1) + (s.npd >= 70 ? 2 : 0));
   s.ordersInHand = Math.max(4, Math.round(baseCap * (0.85 + (s.csat / 100) * 0.35 + (s.newMkt / 100) * 0.25)));
   const cumMaxByWk = [11, 26, 49, 78, 111, 144, 184, 227, 279, 331];
   const finScore = clamp((s.profit / Math.max(1, cumMaxByWk[s.wk - 1] || 331)) * 100, 10, 100);
