@@ -961,11 +961,18 @@ function buildChartsHTML() {
 
 function showTrophyModal() {
   const pct = Math.min(100, Math.max(0, Math.round((s.profit / 331) * 100)));
-  const tier = s.profit >= 281 ? "Gold" : s.profit >= 182 ? "Silver" : "Bronze";
-  const fill = tier === "Gold" ? "#f59e0b" : tier === "Silver" ? "#94a3b8" : "#b45309";
-  const nameStr = s.ceoName ? `, ${s.ceoName}` : "";
-  const headline = tier === "Gold" ? `Congratulations${nameStr}! 100X Architect` : tier === "Silver" ? `Well Done${nameStr}! Rising HPO Leader` : `Simulation Complete${nameStr}`;
-  if (tier === "Gold") fireConfetti();
+  const tier = pct >= 90 ? "Platinum" : pct >= 75 ? "Gold" : pct >= 55 ? "Silver" : pct >= 35 ? "Bronze" : "Challenger";
+  const fill = pct >= 90 ? "#f59e0b" : pct >= 75 ? "#fbbf24" : pct >= 55 ? "#94a3b8" : pct >= 35 ? "#b45309" : "#3b82f6";
+  const headline = pct >= 90
+    ? "Congratulations! You are building a High Performance Organization"
+    : pct >= 75
+    ? "Outstanding Leadership! You are well on your way to a High Performance Organization"
+    : pct >= 55
+    ? "Strong Momentum! A few sharper systems will unlock exponential performance"
+    : pct >= 35
+    ? "Great Start! You've spotted the BUSYness traps — now turn those insights into systems"
+    : "Valuable Breakthrough! Seeing where BUSYness drains profit is the first step to Version 2.0";
+  if (pct >= 75) fireConfetti();
   document.getElementById("trophy-content").innerHTML = `
     <div style="margin:0 auto 12px"><svg viewBox="0 0 64 64" width="120" height="120"><path d="M18 10h28v16c0 9-6 16-14 16s-14-7-14-16V10z" fill="${fill}" stroke="#0b2545" stroke-width="2.5"/><path d="M18 14H10c0 9 4 14 8 14M46 14h8c0 9-4 14-8 14" fill="none" stroke="#0b2545" stroke-width="2.5" stroke-linecap="round"/><rect x="28" y="42" width="8" height="10" fill="#0b2545"/><rect x="20" y="52" width="24" height="5" rx="2" fill="#0b2545"/><polygon points="32,16 34.5,21 40,21.5 36,25 37,30.5 32,27.8 27,30.5 28,25 24,21.5 29.5,21" fill="#fff"/></svg></div>
     <div style="font-size:0.9rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--gold)">${tier} Executive Trophy</div>
