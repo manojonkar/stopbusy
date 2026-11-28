@@ -1098,7 +1098,7 @@ function render() {
     if (lv.type === "slider") {
       const defVal = Math.min(salesOpp, 7);
       inp[lv.id] = defVal;
-      return `<div class="lever"><div class="lever-top"><label>${lv.label}</label></div><span class="desc">Sales Opportunity: <strong>${salesOpp} orders</strong> (${swingLbl}${brandSalesLbl}) &bull; Base Capacity: ${baseCap}/wk &bull; Effective Capacity Now: ${Math.max(2, Math.floor(baseCap * (1 - s.tax / 100)))}/wk</span><input type="range" min="2" max="${salesOpp}" value="${defVal}" oninput="inp['${lv.id}']=+this.value;document.getElementById('ro-${lv.id}').textContent=this.value+' Orders'"><div class="readout" id="ro-${lv.id}">${defVal} Orders</div></div>`;
+      return `<div class="lever"><div class="lever-top"><label>${lv.label}</label></div><span class="desc">Sales Opportunity: <strong>${salesOpp} orders</strong> (${swingLbl}${brandSalesLbl}) &bull; Base Capacity: ${baseCap}/wk</span><input type="range" min="2" max="${salesOpp}" value="${defVal}" oninput="inp['${lv.id}']=+this.value;document.getElementById('ro-${lv.id}').textContent=this.value+' Orders'"><div class="readout" id="ro-${lv.id}">${defVal} Orders</div></div>`;
     } else {
       const okOpt = lv.opts.find(o => o.ok);
       const badOpts = lv.opts.filter(o => !o.ok).sort(() => Math.random() - 0.5);
