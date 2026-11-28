@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The KILL BUSYness CEO Lab (V6.0) — HPO Balanced Scorecard Simulation</title>
+<title>The KILL BUSYness CEO Lab (V6.0) — HPO Scorecard Simulation</title>
 <base href="/game/">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 <style>
@@ -895,7 +895,7 @@ function buildBalancedScorecardHTML() {
   return `
     <div style="background:var(--subtle);border:1.5px solid var(--border-strong);border-top:4px solid var(--gold);border-radius:14px;padding:18px 20px;margin:18px 0">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
-        <div style="font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.09em;color:var(--navy)">🏛️ Boardroom HPO Balanced Scorecard (4 Pillars)</div>
+        <div style="font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.09em;color:var(--navy)">🏛️ Boardroom HPO Scorecard (4 Pillars)</div>
         <div style="background:var(--navy);color:#fde68a;padding:4px 12px;border-radius:999px;font-weight:800;font-size:0.84rem">Overall HPO Index: ${s.hpoScore}/100</div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px">
@@ -1308,7 +1308,7 @@ function submitWeek(salesOpp = 10) {
   s.totExp += wkExp;
   s.profit += wkProfit;
   s.cash = Math.max(5, s.cash + wkProfit);
-  // V6.0 HPO Balanced Scorecard Engine (CSAT, ESAT, EE, VSAT, ESG, NPD, New Market, Orders in Hand, Cash Flow)
+  // V6.0 HPO Scorecard Engine (CSAT, ESAT, EE, VSAT, ESG, NPD, New Market, Orders in Hand, Cash Flow)
   const clamp = (v, lo=20, hi=100) => Math.max(lo, Math.min(hi, Math.round(v)));
   s.csat = clamp(s.csat + (missed === 0 ? 4 : -missed * 4) + (s.qual >= 85 ? 3 : s.qual < 65 ? -3 : 0));
   s.esat = clamp(s.esat + (s.tax <= 15 ? 4 : s.tax >= 30 ? -4 : 0) + (s.ws >= 40 ? 3 : s.ws < 20 ? -3 : 0));
