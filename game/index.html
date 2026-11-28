@@ -1273,8 +1273,20 @@ function submitWeek(salesOpp = 10) {
     monkLines.push(W.monkBad);
     monkLines.push("Motion is not progress; when every urgent request is indulged, the organization grows busier while growing weaker.");
   }
+  const onTimeLines = [
+    "Every commitment in Week 1 was honoured on time—the quiet foundation of a No Follow-Up culture.",
+    "Zero missed deliveries in Week 2 proves that discipline, not frantic chasing, keeps promises.",
+    "Ten for ten delivered on time—when reliability becomes habit, credibility begins selling for you.",
+    "Your expanded capacity ran cleanly with zero backlog—systems are beginning to carry the load.",
+    "Consistent on-time execution frees the CEO's calendar for strategy instead of apologies.",
+    "Even through a Week 6 shock, every delivery landed on schedule—that is operational resilience.",
+    "At 15 orders a week with zero slippage, your team is scaling without adding chaos.",
+    "Steady, drama-free delivery is the clearest sign of a High-Performance Organization.",
+    "While rivals discount in panic, your 100% delivery reliability holds the room.",
+    "Ten weeks of honoured commitments—greatness is now built into your operating rhythm."
+  ];
   if (missed > 0) monkLines.push(`Even a strong vessel takes on water when loaded beyond its waterline—${missed} missed deliveries remind us that saying no to overload is also courage.`);
-  else monkLines.push("Every commitment this week was honoured on time; when reliability becomes your quiet habit, credibility begins selling on your behalf.");
+  else monkLines.push(onTimeLines[(s.wk - 1) % onTimeLines.length]);
   const monk = monkLines.join("\n");
 
   const nextCap = Math.max(2, Math.floor(baseCapFor(Math.min(10, s.wk + 1)) * (1 - s.tax / 100)));
@@ -1287,7 +1299,7 @@ function submitWeek(salesOpp = 10) {
     {
       k: `Follow-Up Load (${prevTax}% → ${s.tax}%)`,
       why: s.tax < prevTax ? `Dropped by ${prevTax - s.tax}% because you built direct ownership and avoided the Chase Machine.` : s.tax > prevTax ? `Rose by ${s.tax - prevTax}% due to follow-up dependency, coordinators, or delivery backlog.` : `Held steady at ${s.tax}%.`,
-      future: `Your effective delivery capacity entering Week ${Math.min(10, s.wk + 1)} is ${nextCap} orders/week (every 10% drop in Follow-Up permanently unlocks +1 order/week of capacity).`
+      future: `Your effective delivery capacity entering Week ${Math.min(10, s.wk + 1)} is ${nextCap} orders/week${baseCapFor(Math.min(10, s.wk + 1)) > baseCap ? ` (including planned base capacity expansion to ${baseCapFor(Math.min(10, s.wk + 1))}/wk!)` : ""} (every 10% drop in Follow-Up permanently unlocks more capacity).`
     },
     {
       k: `Competency / Quality (${prevQual}% → ${s.qual}%)`,
