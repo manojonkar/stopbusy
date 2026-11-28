@@ -953,6 +953,7 @@ function saveFeedback() {
   document.getElementById("fb-status").textContent = `✓ Thank you! Feedback (${rate}/5) saved to live cohort dashboard.`;
 }
 
+function baseCapFor(wk) { return wk >= 9 ? 18 : wk >= 7 ? 15 : wk >= 4 ? 12 : 10; }
 function render() {
   updateHUD();
   const stage = document.getElementById("stage");
@@ -1076,8 +1077,7 @@ function render() {
 
   // ACTIVE WEEK SCREEN
   const W = WEEKS[s.wk - 1];
-  function baseCapFor(wk) { return wk >= 9 ? 18 : wk >= 7 ? 15 : wk >= 4 ? 12 : 10; }
-const SWINGS = [0, 0.10, 0.20, -0.10, 0, 0.20, 0.10, -0.10, -0.20, 0.20];
+  const SWINGS = [0, 0.10, 0.20, -0.10, 0, 0.20, 0.10, -0.10, -0.20, 0.20];
   const swing = SWINGS[s.wk - 1];
   const trustSalesPct = (s.brand - 70) * 2;
   const brandSalesMult = Math.max(0.30, 1 + (trustSalesPct / 100));
